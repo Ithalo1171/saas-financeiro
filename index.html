@@ -334,13 +334,127 @@
             }
         };
 
-        const academyContents = {
-            1: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 1: O Raio-X Financeiro</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">O maior erro de quem vive no aperto não é ganhar pouco, é <strong>não saber para onde o dinheiro vai</strong>.</p><button onclick="switchTab('transacoes')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Registrar Transações Agora</button>`,
-            2: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 2: A Regra 50/30/20</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Divida seu orçamento de forma inteligente: 50% Necessidades, 30% Desejos e 20% Futuro.</p>`,
-            3: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 3: Estratégia Bola de Neve</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Comece pagando a dívida de menor valor total para ganhar dopamina e motivação até zerar todas.</p>`,
-            4: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 4: O Escudo Financeiro</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Acumule o equivalente a 6 meses do seu custo de vida para garantir sua segurança em emergências.</p><button onclick="switchTab('metas')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Criar Minha Primeira Meta</button>`,
-            5: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 5: Dominando o Cartão</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">O cartão de crédito é um aliado para o fluxo de caixa, desde que você nunca compre o que não tem na conta.</p>`,
-            6: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 6: A Mágica dos Juros Compostos</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">No longo prazo, a constância e o tempo importam muito mais do que o valor inicial investido.</p>`
+       const academyContents = {
+            1: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 1: O Raio-X Financeiro e os Gastos Invisíveis</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>O maior erro de quem vive no aperto financeiro não é ganhar pouco, é <strong>não saber para onde o dinheiro está indo</strong>. A maioria das pessoas sofre da "Fobia do Extrato": o medo paralisante de abrir o aplicativo do banco e encarar a realidade.</p>
+                    <p>Nós chamamos esse fenômeno de <strong>Gastos Invisíveis</strong>. Sabe aquele cafezinho de R$ 8 na padaria todo dia? As 4 assinaturas de streaming que você mal assiste? A tarifa de manutenção da conta bancária? Eles parecem inofensivos sozinhos, mas juntos, formam um buraco no casco do seu navio financeiro.</p>
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg my-6">
+                        <h4 class="font-bold text-blue-800 mb-2">A Inflação do Estilo de Vida</h4>
+                        <p class="text-base text-blue-900">À medida que você ganha mais, a tendência natural é gastar mais. O carro muda, o restaurante fica mais caro, a marca da roupa sobe de nível. Se você não tiver um Raio-X exato da sua vida, ganhar mais dinheiro apenas o tornará um "pobre premium". O primeiro passo para a riqueza absoluta é o diagnóstico.</p>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mt-4">Sua Missão Prática:</h3>
+                    <p>Você não pode consertar um vazamento se não sabe onde está o furo. O seu trabalho nos próximos 7 dias é registrar <strong>absolutamente tudo</strong> na aba de Transações desta plataforma. Comprou uma água de R$ 3,00? Registre. Pagou o aluguel? Registre. Transforme a organização em um hábito inegociável.</p>
+                </div>
+                <button onclick="switchTab('transacoes')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-6 transition-all duration-300 transform hover:scale-105">Ir para Transações</button>
+            `,
+            
+            2: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 2: A Regra de Ouro 50/30/20</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>Muitas pessoas desistem de organizar as finanças porque tentam usar planilhas complexas com 50 categorias diferentes. A riqueza de verdade mora na simplicidade. O método <strong>50/30/20</strong> é uma regra universal e infalível para blindar o seu salário e garantir que você viva o hoje enquanto constrói o amanhã.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                        <div class="border p-5 rounded-lg shadow-sm bg-white">
+                            <h4 class="font-black text-xl text-red-500 mb-2">50% Necessidades</h4>
+                            <p class="text-base text-gray-600">Aluguel, supermercado básico, energia, água, plano de saúde e transporte. É o custo da sua sobrevivência. Se você perder o emprego hoje, é esse valor que você precisa para se manter de pé.</p>
+                        </div>
+                        <div class="border p-5 rounded-lg shadow-sm bg-white">
+                            <h4 class="font-black text-xl text-yellow-500 mb-2">30% Desejos</h4>
+                            <p class="text-base text-gray-600">A vida não é só pagar boleto. Aqui entram o iFood, o restaurante do final de semana, a roupa nova, a viagem e o lazer. O segredo é curtir a vida sem ultrapassar essa fatia.</p>
+                        </div>
+                        <div class="border p-5 rounded-lg shadow-sm bg-white">
+                            <h4 class="font-black text-xl text-green-500 mb-2">20% O Seu Futuro</h4>
+                            <p class="text-base text-gray-600">Este é o seu "Pague-se Primeiro". Antes de pagar qualquer outra pessoa, separe 20% para quitar dívidas, montar sua reserva ou investir em ativos que vão te deixar rico.</p>
+                        </div>
+                    </div>
+                    
+                    <p><strong>A armadilha:</strong> A maioria das pessoas gasta 70% em Necessidades (porque vivem em um padrão maior do que podem pagar), 40% em Desejos (usando cartão de crédito para cobrir a diferença) e -10% no Futuro (gerando dívidas). É hora de reequilibrar o seu jogo.</p>
+                </div>
+            `,
+            
+            3: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 3: A Estratégia "Bola de Neve" para Dívidas</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>Se você perguntar a um matemático qual a melhor forma de pagar dívidas, ele dirá: <em>"Pague aquela que tem as taxas de juros mais altas primeiro"</em>. Faz sentido no papel, mas nós não somos robôs movidos a matemática, somos humanos movidos a emoção e psicologia.</p>
+                    <p>A <strong>Estratégia Bola de Neve</strong> (famosa nos EUA) ignora as taxas de juros e foca nas <strong>pequenas vitórias</strong> para criar momentum. Funciona em 3 passos rígidos:</p>
+                    
+                    <ul class="list-none space-y-4 my-6">
+                        <li class="flex items-start">
+                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">1</span>
+                            <p><strong>Liste todas as suas dívidas em ordem de valor total</strong>, da menor dívida (ex: R$ 200 pro amigo) até a maior dívida (ex: R$ 30.000 do carro).</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">2</span>
+                            <p><strong>Pague o valor MÍNIMO de todas as dívidas grandes.</strong> Pegue todo o dinheiro extra que sobrar no seu orçamento (seus 20% do Futuro) e ataque a <strong>menor dívida</strong> com toda a sua força.</p>
+                        </li>
+                        <li class="flex items-start">
+                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">3</span>
+                            <p><strong>A Mágica acontece:</strong> Quando a dívida 1 for quitada, você sentirá uma injeção de dopamina. Pegue o valor que você usava para pagar ela e some ao pagamento da Dívida 2. Você começa a destruir as dívidas em uma verdadeira avalanche.</p>
+                        </li>
+                    </ul>
+                </div>
+            `,
+            
+            4: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 4: O Escudo Financeiro (Reserva)</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>Muitas pessoas chamam de "Reserva de Emergência", mas nós chamamos de <strong>Escudo Financeiro</strong>. Esse dinheiro não serve para te deixar rico, serve para impedir que você fique pobre quando a vida der errado (e acredite, uma hora o pneu fura, o dente quebra, ou a demissão chega).</p>
+                    
+                    <div class="bg-gray-100 p-6 rounded-lg border-l-4 border-gray-500 my-4">
+                        <h4 class="font-bold text-gray-800 mb-2">Qual o tamanho ideal do seu Escudo?</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-base">
+                            <li><strong>Se você é CLT (Carteira Assinada):</strong> 6 meses do seu custo de vida (Apenas a fatia de 50% de Necessidades).</li>
+                            <li><strong>Se você é Autônomo, Motorista ou Empreendedor:</strong> 9 a 12 meses, pois a sua renda flutua muito e o risco é maior.</li>
+                        </ul>
+                    </div>
+
+                    <p><strong>Onde guardar esse dinheiro?</strong><br>O Escudo Financeiro precisa de duas coisas: <strong>Segurança e Alta Liquidez</strong> (poder sacar no mesmo dia). Esqueça ações, criptomoedas ou terrenos. O lugar do seu Escudo é no <em>Tesouro Selic</em> ou em um <em>CDB de Liquidez Diária que renda 100% do CDI</em> (oferecido por quase todos os bancos digitais hoje).</p>
+                    <p>A paz de espírito de saber que, se tudo der errado, você tem 6 meses pagos para se reerguer, é o que te permite tomar decisões com ousadia, ao invés de decidir pelo medo.</p>
+                </div>
+                <button onclick="switchTab('metas')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-6 transition-all duration-300 transform hover:scale-105">Criar a Meta do meu Escudo</button>
+            `,
+            
+            5: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 5: Dominando o Jogo do Cartão de Crédito</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>O cartão de crédito foi demonizado por anos, mas a verdade é uma só: <strong>O cartão de crédito não é seu inimigo; a sua falta de controle é.</strong> Nas mãos certas, ele é a ferramenta mais poderosa para alavancar sua vida, proteger seu dinheiro e viajar de graça.</p>
+                    
+                    <p>O problema começa quando o cérebro processa o limite do cartão como se fosse "dinheiro extra". <strong>Regra de Ouro:</strong> Nunca, em hipótese alguma, compre algo no crédito se você não tiver aquele valor na sua conta corrente naquele exato momento.</p>
+                    
+                    <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500 my-4">
+                        <h4 class="font-bold text-green-800 mb-2">Como usar o sistema a seu favor:</h4>
+                        <ul class="list-disc pl-5 space-y-2 text-base text-green-900">
+                            <li><strong>O Fluxo de Caixa Mágico:</strong> Comprando no "Melhor Dia" (logo após o fechamento da fatura), o banco te empresta dinheiro a 0% de juros por até 40 dias. Enquanto isso, o seu dinheiro real fica rendendo na conta.</li>
+                            <li><strong>Pontos e Milhas:</strong> Concentre 100% dos seus gastos em um cartão que pontue. Um gasto mensal de supermercado, luz e combustível que você já teria de qualquer forma, agora vira passagens aéreas no fim do ano.</li>
+                            <li><strong>O Perigo do Rotativo:</strong> Os juros do cartão rotativo (quando você paga apenas o mínimo) ultrapassam 400% ao ano. Cair nisso é suicídio financeiro. Se errar, pegue um empréstimo pessoal com taxa de 2% ao mês e quite o cartão inteiro. Nunca financie a fatura.</li>
+                        </ul>
+                    </div>
+                </div>
+            `,
+            
+            6: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 6: A Mágica dos Juros Compostos e o Tempo</h2>
+                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
+                    <p>Albert Einstein teria dito certa vez que <em>"Os juros compostos são a oitava maravilha do mundo. Aquele que os entende, ganha; aquele que não entende, paga."</em></p>
+                    <p>A riqueza de verdade não é construída com sorte ou grandes salários, mas sim com **constância e tempo**. No mundo dos investimentos, os juros não rendem apenas sobre o que você depositou no primeiro mês, eles rendem sobre os juros do mês anterior. É uma curva exponencial infinita.</p>
+                    
+                    <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg my-6">
+                        <h4 class="font-bold text-blue-400 mb-3 text-xl">O Poder do Tempo (A Prova Real):</h4>
+                        <p class="text-gray-300 mb-4">Imagine dois amigos, ambos buscando a independência financeira:</p>
+                        <ul class="space-y-3">
+                            <li><span class="text-blue-400 font-bold">Amigo A:</span> Começa a investir R$ 300 por mês aos 20 anos de idade. Para de investir aos 30 anos (investiu por apenas 10 anos) e deixa o dinheiro parado rendendo.</li>
+                            <li><span class="text-yellow-400 font-bold">Amigo B:</span> Decide curtir a juventude e só começa a investir aos 30 anos, mas coloca os mesmos R$ 300 todos os meses até os 60 anos (investiu durante 30 anos seguidos).</li>
+                        </ul>
+                        <p class="mt-4 font-bold text-green-400">Resultado aos 60 anos (rendendo 10% a.a):</p>
+                        <p class="text-gray-300">Por incrível que pareça, o Amigo A, que investiu por muito menos tempo mas começou cedo, terá muito mais dinheiro do que o Amigo B. O dinheiro do Amigo A teve mais TEMPO para "compor" e se multiplicar.</p>
+                    </div>
+
+                    <p>O melhor dia para plantar uma árvore e começar a investir foi há 10 anos. O segundo melhor momento é <strong>hoje</strong>. Use esta plataforma para organizar as finanças, proteger a base, eliminar as dívidas e começar a construir seu patrimônio, mês após mês.</p>
+                </div>
+            `
+        };
         };
 
         window.changeAcademyModule = function(id) {
