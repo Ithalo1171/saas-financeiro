@@ -8,10 +8,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js para Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase SDKs (Compat version para scripts diretos) -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
     <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -39,8 +35,8 @@
                     <input type="password" id="auth-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <button onclick="loginUser()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition">Entrar na Plataforma</button>
-                    <button onclick="registerUser()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">Criar Nova Conta</button>
+                    <button type="button" onclick="loginUser()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition">Entrar na Plataforma</button>
+                    <button type="button" onclick="registerUser()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">Criar Nova Conta</button>
                 </div>
             </form>
         </div>
@@ -193,59 +189,61 @@
         </main>
     </div>
 
-    <script>
-        // ==========================================
-        // CONFIGURAÇÃO DO FIREBASE
-        // ==========================================
+    <!-- SCRIPT FIREBASE E LÓGICA DO APP (MÓDULO ESPECÍFICO) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            updateDoc, 
+            deleteDoc, 
+            onSnapshot, 
+            query, 
+            orderBy 
+        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+
         const firebaseConfig = {
-            apiKey: "SUA_API_KEY_AQUI",
-            authDomain: "seu-projeto.firebaseapp.com",
-            projectId: "seu-projeto",
-            storageBucket: "seu-projeto.appspot.com",
-            messagingSenderId: "SEU_SENDER_ID",
-            appId: "SEU_APP_ID"
+            apiKey: "AIzaSyBoeFJeK1Dq93wSPSvjFJTh4eC1Tan3jzY",
+            authDomain: "usuarios-compradores.firebaseapp.com",
+            projectId: "usuarios-compradores",
+            storageBucket: "usuarios-compradores.firebasestorage.app",
+            messagingSenderId: "314463233345",
+            appId: "1:314463233345:web:db4915bba91b9ac1f8adc0",
+            measurementId: "G-DL26NFFTS1"
         };
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
         let currentUser = null;
         let pieChartInstance = null;
         let barChartInstance = null;
+        let transacoesGlobais = [];
 
-        // ==========================================
-        // AUTENTICAÇÃO SIMPLIFICADA (LIVRE VIA LINK)
-        // ==========================================
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard-screen').classList.remove('hidden');
-                document.getElementById('user-email-display').innerText = user.email;
-                
-                updateStreak();
-                loadTransactions();
-                loadGoals();
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('dashboard-screen').classList.add('hidden');
-            }
-        });
-
-        async function loginUser() {
+        // Expor funções globalmente para o HTML conseguir enxergá-las
+        window.loginUser = async function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
                 alert("Erro ao fazer login: " + error.message);
             }
-        }
+        };
 
-        async function registerUser() {
+        window.registerUser = async function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             
@@ -255,11 +253,10 @@
             }
 
             try {
-                // Cria a conta diretamente sem travas
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
                 const user = userCredential.user;
 
-                await db.collection("users").doc(user.uid).set({
+                await setDoc(doc(db, "users", user.uid), {
                     email: user.email,
                     streak: 1,
                     lastLogin: new Date().toISOString()
@@ -269,29 +266,112 @@
             } catch (error) {
                 alert("Erro ao criar conta: " + error.message);
             }
-        }
+        };
 
-        function logoutUser() {
-            auth.signOut();
-        }
+        window.logoutUser = function() {
+            signOut(auth);
+        };
 
-        function switchTab(tabId) {
+        window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.add('hidden');
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             
             if(tabId === 'relatorios') renderCharts();
-        }
+        };
 
-        async function updateStreak() {
-            if(!currentUser) return;
+        window.addTransaction = async function(e) {
+            e.preventDefault();
+            const desc = document.getElementById('trans-desc').value;
+            const valor = parseFloat(document.getElementById('trans-valor').value);
+            const tipo = document.getElementById('trans-tipo').value;
+
+            await addDoc(collection(db, `users/${currentUser.uid}/transactions`), {
+                descricao: desc,
+                valor: valor,
+                tipo: tipo,
+                data: new Date().toISOString()
+            });
+
+            document.getElementById('form-transacao').reset();
+        };
+
+        window.deleteTransaction = async function(id) {
+            if(confirm("Excluir transação?")) {
+                await deleteDoc(doc(db, `users/${currentUser.uid}/transactions`, id));
+            }
+        };
+
+        window.addGoal = async function(e) {
+            e.preventDefault();
+            const nome = document.getElementById('meta-nome').value;
+            const valorTotal = parseFloat(document.getElementById('meta-valor').value);
+
+            await addDoc(collection(db, `users/${currentUser.uid}/goals`), {
+                nome: nome,
+                valorTotal: valorTotal,
+                valorAtual: 0,
+                createdAt: new Date().toISOString()
+            });
+
+            document.getElementById('form-meta').reset();
+        };
+
+        window.updateGoalProgress = async function(id, valorAtual) {
+            const input = document.getElementById(`add-val-${id}`);
+            const valorAdd = parseFloat(input.value);
+            if(isNaN(valorAdd) || valorAdd <= 0) return alert("Insira um valor válido.");
             
-            const userRef = db.collection('users').doc(currentUser.uid);
-            const doc = await userRef.get();
+            await updateDoc(doc(db, `users/${currentUser.uid}/goals`, id), {
+                valorAtual: valorAtual + valorAdd
+            });
+        };
+
+        window.deleteGoal = async function(id) {
+            if(confirm("Excluir esta meta?")) {
+                await deleteDoc(doc(db, `users/${currentUser.uid}/goals`, id));
+            }
+        };
+
+        const academyContents = {
+            1: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 1: O Raio-X Financeiro</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">O maior erro de quem vive no aperto não é ganhar pouco, é <strong>não saber para onde o dinheiro vai</strong>.</p><button onclick="switchTab('transacoes')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Registrar Transações Agora</button>`,
+            2: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 2: A Regra 50/30/20</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Divida seu orçamento de forma inteligente: 50% Necessidades, 30% Desejos e 20% Futuro.</p>`,
+            3: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 3: Estratégia Bola de Neve</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Comece pagando a dívida de menor valor total para ganhar dopamina e motivação até zerar todas.</p>`,
+            4: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 4: O Escudo Financeiro</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">Acumule o equivalente a 6 meses do seu custo de vida para garantir sua segurança em emergências.</p><button onclick="switchTab('metas')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Criar Minha Primeira Meta</button>`,
+            5: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 5: Dominando o Cartão</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">O cartão de crédito é um aliado para o fluxo de caixa, desde que você nunca compre o que não tem na conta.</p>`,
+            6: `<h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 6: A Mágica dos Juros Compostos</h2><p class="text-gray-700 leading-relaxed mb-4 text-lg">No longo prazo, a constância e o tempo importam muito mais do que o valor inicial investido.</p>`
+        };
+
+        window.changeAcademyModule = function(id) {
+            document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
+            document.getElementById(`mod-btn-${id}`).classList.add('active', 'bg-blue-600', 'text-white');
+            document.getElementById('module-content').innerHTML = academyContents[id];
+        };
+
+        // Escuta de Autenticação
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+                document.getElementById('user-email-display').innerText = user.email;
+                
+                updateStreak(user);
+                loadTransactions(user);
+                loadGoals(user);
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('dashboard-screen').classList.add('hidden');
+            }
+        });
+
+        async function updateStreak(user) {
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
             
-            if (doc.exists) {
-                const data = doc.data();
+            if (userSnap.exists()) {
+                const data = userSnap.data();
                 const today = new Date().toISOString().split('T')[0];
                 const lastLoginDate = data.lastLogin ? data.lastLogin.split('T')[0] : null;
                 let currentStreak = data.streak || 0;
@@ -307,156 +387,87 @@
                         currentStreak = 1;
                     }
 
-                    await userRef.update({
+                    await updateDoc(userRef, {
                         streak: currentStreak,
                         lastLogin: new Date().toISOString()
                     });
                 }
 
                 document.getElementById('streak-count').innerText = currentStreak;
+            }
+        }
+
+        function loadTransactions(user) {
+            const q = query(collection(db, `users/${user.uid}/transactions`), orderBy('data', 'desc'));
+            onSnapshot(q, (snapshot) => {
+                let totalReceitas = 0;
+                let totalDespesas = 0;
+                const tbody = document.getElementById('tabela-transacoes');
+                tbody.innerHTML = '';
+                transacoesGlobais = [];
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    data.id = docSnap.id;
+                    transacoesGlobais.push(data);
+
+                    if (data.tipo === 'receita') totalReceitas += data.valor;
+                    if (data.tipo === 'despesa') totalDespesas += data.valor;
+
+                    const dataFormatada = new Date(data.data).toLocaleDateString('pt-BR');
+                    const corValor = data.tipo === 'receita' ? 'text-green-600' : 'text-red-600';
+                    const sinal = data.tipo === 'receita' ? '+' : '-';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-4 text-sm text-gray-600">${dataFormatada}</td>
+                            <td class="p-4 font-medium">${data.descricao}</td>
+                            <td class="p-4 uppercase text-xs font-bold text-gray-400">${data.tipo}</td>
+                            <td class="p-4 font-bold ${corValor}">${sinal} R$ ${data.valor.toFixed(2)}</td>
+                            <td class="p-4 text-sm text-red-500 cursor-pointer" onclick="deleteTransaction('${docSnap.id}')">Excluir</td>
+                        </tr>
+                    `;
+                });
+
+                document.getElementById('card-receitas').innerText = `R$ ${totalReceitas.toFixed(2)}`;
+                document.getElementById('card-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
+                document.getElementById('card-saldo').innerText = `R$ ${(totalReceitas - totalDespesas).toFixed(2)}`;
                 
-                let msg = "Comece a registrar seus movimentos hoje!";
-                if(currentStreak > 1) msg = "Você está pegando o ritmo! Não deixe o fogo apagar.";
-                if(currentStreak >= 7) msg = "Incrível! Uma semana inteira cuidando do seu futuro.";
-                if(currentStreak >= 30) msg = "Lenda Financeira! 30 dias de disciplina mudam vidas.";
-                
-                document.getElementById('streak-msg').innerText = msg;
-            }
-        }
-
-        async function addTransaction(e) {
-            e.preventDefault();
-            const desc = document.getElementById('trans-desc').value;
-            const valor = parseFloat(document.getElementById('trans-valor').value);
-            const tipo = document.getElementById('trans-tipo').value;
-
-            await db.collection(`users/${currentUser.uid}/transactions`).add({
-                descricao: desc,
-                valor: valor,
-                tipo: tipo,
-                data: new Date().toISOString()
-            });
-
-            document.getElementById('form-transacao').reset();
-            loadTransactions();
-        }
-
-        function formatCurrency(value) {
-            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-        }
-
-        let transacoesGlobais = [];
-
-        function loadTransactions() {
-            db.collection(`users/${currentUser.uid}/transactions`)
-              .orderBy('data', 'desc')
-              .onSnapshot(snapshot => {
-                  let totalReceitas = 0;
-                  let totalDespesas = 0;
-                  const tbody = document.getElementById('tabela-transacoes');
-                  tbody.innerHTML = '';
-                  transacoesGlobais = [];
-
-                  snapshot.forEach(doc => {
-                      const data = doc.data();
-                      data.id = doc.id;
-                      transacoesGlobais.push(data);
-
-                      if (data.tipo === 'receita') totalReceitas += data.valor;
-                      if (data.tipo === 'despesa') totalDespesas += data.valor;
-
-                      const dataFormatada = new Date(data.data).toLocaleDateString('pt-BR');
-                      const corValor = data.tipo === 'receita' ? 'text-green-600' : 'text-red-600';
-                      const sinal = data.tipo === 'receita' ? '+' : '-';
-
-                      tbody.innerHTML += `
-                          <tr>
-                              <td class="p-4 text-sm text-gray-600">${dataFormatada}</td>
-                              <td class="p-4 font-medium">${data.descricao}</td>
-                              <td class="p-4 uppercase text-xs font-bold text-gray-400">${data.tipo}</td>
-                              <td class="p-4 font-bold ${corValor}">${sinal} ${formatCurrency(data.valor)}</td>
-                              <td class="p-4 text-sm text-red-500 cursor-pointer" onclick="deleteTransaction('${doc.id}')">Excluir</td>
-                          </tr>
-                      `;
-                  });
-
-                  document.getElementById('card-receitas').innerText = formatCurrency(totalReceitas);
-                  document.getElementById('card-despesas').innerText = formatCurrency(totalDespesas);
-                  document.getElementById('card-saldo').innerText = formatCurrency(totalReceitas - totalDespesas);
-                  
-                  renderCharts();
-              });
-        }
-
-        async function deleteTransaction(id) {
-            if(confirm("Excluir transação?")) {
-                await db.collection(`users/${currentUser.uid}/transactions`).doc(id).delete();
-            }
-        }
-
-        async function addGoal(e) {
-            e.preventDefault();
-            const nome = document.getElementById('meta-nome').value;
-            const valorTotal = parseFloat(document.getElementById('meta-valor').value);
-
-            await db.collection(`users/${currentUser.uid}/goals`).add({
-                nome: nome,
-                valorTotal: valorTotal,
-                valorAtual: 0,
-                createdAt: new Date().toISOString()
-            });
-
-            document.getElementById('form-meta').reset();
-        }
-
-        function loadGoals() {
-            db.collection(`users/${currentUser.uid}/goals`)
-              .orderBy('createdAt', 'desc')
-              .onSnapshot(snapshot => {
-                  const listaMetas = document.getElementById('lista-metas');
-                  listaMetas.innerHTML = '';
-
-                  snapshot.forEach(doc => {
-                      const data = doc.data();
-                      const percentual = Math.min((data.valorAtual / data.valorTotal) * 100, 100).toFixed(1);
-                      
-                      listaMetas.innerHTML += `
-                          <div class="border rounded-lg p-4 bg-gray-50 flex flex-col gap-3 relative">
-                              <button onclick="deleteGoal('${doc.id}')" class="absolute top-4 right-4 text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                              <div class="flex justify-between items-center pr-8">
-                                  <h4 class="font-bold text-lg text-gray-800">${data.nome}</h4>
-                                  <span class="text-sm font-semibold text-gray-600">${formatCurrency(data.valorAtual)} / ${formatCurrency(data.valorTotal)}</span>
-                              </div>
-                              <div class="w-full bg-gray-200 rounded-full h-4">
-                                  <div class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: ${percentual}%"></div>
-                              </div>
-                              <div class="flex justify-between items-center mt-2">
-                                  <span class="text-xs font-bold text-blue-600">${percentual}% Concluído</span>
-                                  <div class="flex gap-2">
-                                      <input type="number" id="add-val-${doc.id}" placeholder="R$" class="border rounded p-1 w-24 text-sm">
-                                      <button onclick="updateGoalProgress('${doc.id}', ${data.valorAtual})" class="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">Guardar</button>
-                                  </div>
-                              </div>
-                          </div>
-                      `;
-                  });
-              });
-        }
-
-        async function updateGoalProgress(id, valorAtual) {
-            const input = document.getElementById(`add-val-${id}`);
-            const valorAdd = parseFloat(input.value);
-            if(isNaN(valorAdd) || valorAdd <= 0) return alert("Insira um valor válido.");
-            
-            await db.collection(`users/${currentUser.uid}/goals`).doc(id).update({
-                valorAtual: valorAtual + valorAdd
+                renderCharts();
             });
         }
 
-        async function deleteGoal(id) {
-            if(confirm("Excluir esta meta?")) {
-                await db.collection(`users/${currentUser.uid}/goals`).doc(id).delete();
-            }
+        function loadGoals(user) {
+            const q = query(collection(db, `users/${user.uid}/goals`), orderBy('createdAt', 'desc'));
+            onSnapshot(q, (snapshot) => {
+                const listaMetas = document.getElementById('lista-metas');
+                listaMetas.innerHTML = '';
+
+                snapshot.forEach(docSnap => {
+                    const data = docSnap.data();
+                    const percentual = Math.min((data.valorAtual / data.valorTotal) * 100, 100).toFixed(1);
+                    
+                    listaMetas.innerHTML += `
+                        <div class="border rounded-lg p-4 bg-gray-50 flex flex-col gap-3 relative">
+                            <button onclick="deleteGoal('${docSnap.id}')" class="absolute top-4 right-4 text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                            <div class="flex justify-between items-center pr-8">
+                                <h4 class="font-bold text-lg text-gray-800">${data.nome}</h4>
+                                <span class="text-sm font-semibold text-gray-600">R$ ${data.valorAtual.toFixed(2)} / R$ ${data.valorTotal.toFixed(2)}</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-4">
+                                <div class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: ${percentual}%"></div>
+                            </div>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-xs font-bold text-blue-600">${percentual}% Concluído</span>
+                                <div class="flex gap-2">
+                                    <input type="number" id="add-val-${docSnap.id}" placeholder="R$" class="border rounded p-1 w-24 text-sm">
+                                    <button onclick="updateGoalProgress('${docSnap.id}', ${data.valorAtual})" class="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold">Guardar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
         }
 
         function renderCharts() {
@@ -498,41 +509,6 @@
                     }]
                 }
             });
-        }
-
-        const academyContents = {
-            1: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 1: O Raio-X Financeiro</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">O maior erro de quem vive no aperto não é ganhar pouco, é <strong>não saber para onde o dinheiro vai</strong>.</p>
-                <button onclick="switchTab('transacoes')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Registrar Transações Agora</button>
-            `,
-            2: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 2: A Regra 50/30/20</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">Divida seu orçamento de forma inteligente: 50% Necessidades, 30% Desejos e 20% Futuro.</p>
-            `,
-            3: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 3: Estratégia Bola de Neve</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">Comece pagando a dívida de menor valor total para ganhar dopamina e motivação até zerar todas.</p>
-            `,
-            4: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 4: O Escudo Financeiro</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">Acumule o equivalente a 6 meses do seu custo de vida para garantir sua segurança em emergências.</p>
-                <button onclick="switchTab('metas')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-4">Criar Minha Primeira Meta</button>
-            `,
-            5: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 5: Dominando o Cartão</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">O cartão de crédito é um aliado para o fluxo de caixa, desde que você nunca compre o que não tem na conta.</p>
-            `,
-            6: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-4">Módulo 6: A Mágica dos Juros Compostos</h2>
-                <p class="text-gray-700 leading-relaxed mb-4 text-lg">No longo prazo, a constância e o tempo importam muito mais do que o valor inicial investido.</p>
-            `
-        };
-
-        function changeAcademyModule(id) {
-            document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
-            document.getElementById(`mod-btn-${id}`).classList.add('active', 'bg-blue-600', 'text-white');
-            document.getElementById('module-content').innerHTML = academyContents[id];
         }
 
         document.addEventListener('DOMContentLoaded', () => {
