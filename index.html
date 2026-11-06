@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartFin - Controle e Evolução Financeira</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -53,7 +56,7 @@
                 <ul class="space-y-2">
                     <li><button onclick="switchTab('visao-geral')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-home w-6"></i> Visão Geral</button></li>
                     <li><button onclick="switchTab('transacoes')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-exchange-alt w-6"></i> Transações</button></li>
-                    <li><button onclick="switchTab('relatorios')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-chart-pie w-6"></i> Relatórios Inteligentes</button></li>
+                    <li><button onclick="switchTab('relatorios')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-chart-pie w-6"></i> Análise e Relatórios</button></li>
                     <li><button onclick="switchTab('metas')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-bullseye w-6"></i> Metas</button></li>
                     <li><button onclick="switchTab('academia')" class="w-full text-left p-3 rounded-lg bg-blue-600 bg-opacity-20 text-blue-400 font-semibold hover:bg-blue-600 hover:text-white"><i class="fas fa-graduation-cap w-6"></i> Academia</button></li>
                 </ul>
@@ -77,6 +80,7 @@
             <!-- ABA: VISÃO GERAL -->
             <section id="tab-visao-geral" class="tab-content block">
                 <h2 class="text-3xl font-bold mb-6">Visão Geral</h2>
+                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
                         <p class="text-gray-500 text-sm">Saldo Atual</p>
@@ -91,7 +95,9 @@
                         <h3 class="text-3xl font-bold text-red-600 mt-1" id="card-despesas">R$ 0,00</h3>
                     </div>
                 </div>
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 rounded-xl shadow-lg text-white flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
+
+                <!-- CARD GAMIFICAÇÃO -->
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 rounded-xl shadow-lg text-white flex flex-col md:flex-row items-center justify-between mb-8 gap-4 text-center md:text-left">
                     <div class="flex items-center gap-4">
                         <div class="text-6xl">🔥</div>
                         <div>
@@ -99,7 +105,7 @@
                             <p class="text-orange-100" id="streak-msg">Registre seus ganhos ou despesas para manter sua ofensiva acesa!</p>
                         </div>
                     </div>
-                    <div class="text-center bg-white bg-opacity-20 px-6 py-4 rounded-lg">
+                    <div class="text-center bg-white bg-opacity-20 px-6 py-4 rounded-lg w-full md:w-auto">
                         <span class="block text-4xl font-black" id="streak-count">0</span>
                         <span class="text-sm font-semibold uppercase tracking-wider">Dias Seguidos</span>
                     </div>
@@ -112,19 +118,15 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
                     <h3 class="text-xl font-semibold mb-4">Novo Registro</h3>
                     <form id="form-transacao" class="grid grid-cols-1 md:grid-cols-6 gap-4" onsubmit="addTransaction(event)">
-                        <input type="text" id="trans-desc" placeholder="Descrição (ex: Mercado Mensal)" class="border p-2 rounded md:col-span-2" required>
+                        <input type="text" id="trans-desc" placeholder="Descrição (ex: Supermercado)" class="border p-2 rounded md:col-span-2" required>
                         <input type="number" id="trans-valor" placeholder="Valor (R$)" step="0.01" class="border p-2 rounded" required>
-                        
                         <select id="trans-tipo" class="border p-2 rounded" required onchange="updateCategorias()">
                             <option value="despesa" selected>Despesa (-)</option>
                             <option value="receita">Receita (+)</option>
                         </select>
-                        
-                        <!-- Categorias dinâmicas -->
                         <select id="trans-categoria" class="border p-2 rounded" required>
-                            <!-- Prenchido pelo JavaScript -->
+                            <!-- JS preenche categorias -->
                         </select>
-
                         <button type="submit" class="bg-blue-600 text-white font-bold rounded hover:bg-blue-700 py-2">Registrar</button>
                     </form>
                 </div>
@@ -140,21 +142,20 @@
                             </tr>
                         </thead>
                         <tbody id="tabela-transacoes" class="divide-y">
-                            <!-- JS preenche aqui -->
+                            <!-- JS preenche -->
                         </tbody>
                     </table>
                 </div>
             </section>
 
-            <!-- ABA: RELATÓRIOS INTELIGENTES -->
+            <!-- ABA: RELATÓRIOS -->
             <section id="tab-relatorios" class="tab-content hidden">
                 <h2 class="text-3xl font-bold mb-6">Análise e Conselheiro Financeiro</h2>
                 
-                <!-- Novo Painel de Insights -->
                 <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border-t-4 border-blue-600">
                     <h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-brain text-blue-600 mr-2"></i> Diagnóstico Inteligente da sua Conta</h3>
                     <div id="insights-container" class="space-y-4">
-                        <!-- Mensagens injetadas pelo JS -->
+                        <!-- Alertas gerados pelo motor -->
                     </div>
                 </div>
 
@@ -164,7 +165,7 @@
                         <canvas id="pieChart"></canvas>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-lg mb-4 text-center">Fluxo de Caixa (Recente)</h3>
+                        <h3 class="font-semibold text-lg mb-4 text-center">Fluxo (Últimos Registros)</h3>
                         <canvas id="barChart"></canvas>
                     </div>
                 </div>
@@ -181,7 +182,7 @@
                     </form>
                 </div>
                 <div id="lista-metas" class="grid grid-cols-1 gap-4">
-                    <!-- JS preenche aqui -->
+                    <!-- JS preenche -->
                 </div>
             </section>
 
@@ -191,15 +192,15 @@
                     <div class="w-full md:w-1/3 bg-white rounded-xl shadow-sm p-4 overflow-y-auto">
                         <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Módulos do Curso</h3>
                         <div class="flex flex-col gap-2">
-                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn active text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 1: Gastos Invisíveis</button>
+                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn active text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 1: O Raio-X Financeiro</button>
                             <button onclick="changeAcademyModule(2)" id="mod-btn-2" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 2: A Regra 50/30/20</button>
                             <button onclick="changeAcademyModule(3)" id="mod-btn-3" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 3: Bola de Neve (Dívidas)</button>
-                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 4: Escudo Financeiro</button>
-                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 5: Domínio do Cartão</button>
+                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 4: O Escudo Financeiro</button>
+                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 5: Dominando o Cartão</button>
                             <button onclick="changeAcademyModule(6)" id="mod-btn-6" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 6: Juros Compostos</button>
                         </div>
                     </div>
-                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-sm p-4 md:p-8 overflow-y-auto relative">
+                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-sm p-6 md:p-8 overflow-y-auto relative">
                         <div id="module-content"></div>
                     </div>
                 </div>
@@ -208,6 +209,7 @@
         </main>
     </div>
 
+    <!-- SCRIPT FIREBASE E LÓGICA DO APP -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
@@ -232,7 +234,6 @@
         let barChartInstance = null;
         let transacoesGlobais = [];
 
-        // Atualizador de Categorias do Formulário
         window.updateCategorias = function() {
             const tipo = document.getElementById('trans-tipo').value;
             const catSelect = document.getElementById('trans-categoria');
@@ -276,7 +277,7 @@
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             if(!email || !password) return alert("Preencha e-mail e senha.");
-            if(password.length < 6) return alert("A senha precisa de 6 caracteres.");
+            if(password.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -314,7 +315,7 @@
                 data: new Date().toISOString()
             });
             document.getElementById('form-transacao').reset();
-            updateCategorias(); // Reseta o form para padrão
+            updateCategorias();
         };
 
         window.deleteTransaction = async function(id) {
@@ -336,16 +337,11 @@
             }
         });
 
-        // ==========================================
-        // MOTOR DE ANÁLISE E TRANSAÇÕES
-        // ==========================================
         function loadTransactions(user) {
             const q = query(collection(db, `users/${user.uid}/transactions`), orderBy('data', 'desc'));
             onSnapshot(q, (snapshot) => {
                 let totalReceitas = 0;
                 let totalDespesas = 0;
-                
-                // Objeto para guardar quanto gastou em cada categoria
                 let gastosPorCategoria = {}; 
 
                 const tbody = document.getElementById('tabela-transacoes');
@@ -357,12 +353,10 @@
                     data.id = docSnap.id;
                     transacoesGlobais.push(data);
                     
-                    // Somatórias gerais
                     if (data.tipo === 'receita') {
                         totalReceitas += data.valor;
                     } else {
                         totalDespesas += data.valor;
-                        // Soma específica da categoria
                         if (!gastosPorCategoria[data.categoria]) gastosPorCategoria[data.categoria] = 0;
                         gastosPorCategoria[data.categoria] += data.valor;
                     }
@@ -376,7 +370,7 @@
                         <tr>
                             <td class="p-4 text-sm text-gray-600">${dataFormatada}</td>
                             <td class="p-4 font-medium">${data.descricao}</td>
-                            <td class="p-4"><span class="cat-badge ${catBg}">${data.categoria || 'Sem Categoria'}</span></td>
+                            <td class="p-4"><span class="cat-badge ${catBg}">${data.categoria || 'Geral'}</span></td>
                             <td class="p-4 font-bold ${corValor}">${sinal} R$ ${data.valor.toFixed(2)}</td>
                             <td class="p-4 text-sm text-red-500 cursor-pointer" onclick="deleteTransaction('${docSnap.id}')">Excluir</td>
                         </tr>
@@ -392,9 +386,6 @@
             });
         }
 
-        // ==========================================
-        // CONSELHEIRO FINANCEIRO VIRTUAL (INSIGHTS)
-        // ==========================================
         function generateInsights(totalRec, totalDes, gastosPorCat) {
             const container = document.getElementById('insights-container');
             container.innerHTML = '';
@@ -406,38 +397,28 @@
 
             let dicas = [];
 
-            // Regra do Lazer (> 30% é perigoso segundo regra 50/30/20)
             if (gastosPorCat['Lazer'] && totalDes > 0) {
                 let perc = (gastosPorCat['Lazer'] / totalDes) * 100;
-                if (perc > 30) dicas.push(`<div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded"><h4 class="font-bold text-yellow-800"><i class="fas fa-exclamation-triangle"></i> Alerta de Lazer (${perc.toFixed(1)}% dos gastos)</h4><p class="text-yellow-700 text-sm mt-1">Seus gastos com lazer estão invadindo o espaço das suas necessidades. Tente segurar as saídas e o iFood para não comprometer a regra 50/30/20.</p></div>`);
+                if (perc > 30) dicas.push(`<div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded"><h4 class="font-bold text-yellow-800"><i class="fas fa-exclamation-triangle"></i> Alerta de Lazer (${perc.toFixed(1)}% dos gastos)</h4><p class="text-yellow-700 text-sm mt-1">Seus gastos com lazer estão invadindo o espaço das suas necessidades. Tente segurar as saídas para não comprometer sua estabilidade.</p></div>`);
             }
 
-            // Regra do Transporte/Uber (> 15% das despesas chama atenção)
             if (gastosPorCat['Transporte'] && totalDes > 0) {
                 let perc = (gastosPorCat['Transporte'] / totalDes) * 100;
-                if (perc > 15) dicas.push(`<div class="border-l-4 border-red-500 bg-red-50 p-4 rounded"><h4 class="font-bold text-red-800"><i class="fas fa-car"></i> Gastos Altos com Transporte (${perc.toFixed(1)}%)</h4><p class="text-red-700 text-sm mt-1">O peso do Uber e combustível está muito alto na sua vida. Vale a pena avaliar alternativas, renegociar rotas ou concentrar saídas no mesmo dia.</p></div>`);
+                if (perc > 15) dicas.push(`<div class="border-l-4 border-red-500 bg-red-50 p-4 rounded"><h4 class="font-bold text-red-800"><i class="fas fa-car"></i> Gastos Altos com Transporte (${perc.toFixed(1)}%)</h4><p class="text-red-700 text-sm mt-1">O peso do Uber e combustível está alto. Avalie rotas alternativas ou otimize deslocamentos.</p></div>`);
             }
 
-            // Regra de Alimentação (> 30% chama atenção)
             if (gastosPorCat['Alimentação'] && totalDes > 0) {
                 let perc = (gastosPorCat['Alimentação'] / totalDes) * 100;
-                if (perc > 30) dicas.push(`<div class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded"><h4 class="font-bold text-orange-800"><i class="fas fa-utensils"></i> Peso da Alimentação (${perc.toFixed(1)}%)</h4><p class="text-orange-700 text-sm mt-1">Mercado e comida estão consumindo uma fatia gigante. Faça sempre listas antes de ir ao mercado para evitar o "efeito corredor" e compras por impulso.</p></div>`);
+                if (perc > 30) dicas.push(`<div class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded"><h4 class="font-bold text-orange-800"><i class="fas fa-utensils"></i> Peso da Alimentação (${perc.toFixed(1)}%)</h4><p class="text-orange-700 text-sm mt-1">Mercado e comida consumindo uma fatia gigante. Faça listas antes de ir ao mercado.</p></div>`);
             }
 
-            // Gastos com Emergência detectados
-            if (gastosPorCat['Emergência']) {
-                dicas.push(`<div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded"><h4 class="font-bold text-blue-800"><i class="fas fa-briefcase-medical"></i> Imprevistos Acontecem</h4><p class="text-blue-700 text-sm mt-1">Você registrou gastos emergenciais esse mês. É exatamente para isso que o Escudo Financeiro serve. Assim que o mês virar, planeje repor o valor gasto na sua reserva!</p></div>`);
-            }
-
-            // Se não gerou nenhum alerta negativo
             if (dicas.length === 0 && totalDes > 0 && totalRec >= totalDes) {
-                dicas.push(`<div class="border-l-4 border-green-500 bg-green-50 p-4 rounded"><h4 class="font-bold text-green-800"><i class="fas fa-check-circle"></i> Conta Saudável!</h4><p class="text-green-700 text-sm mt-1">Sua distribuição de gastos está excelente e sem excessos graves aparentes. Continue alimentando a plataforma para manter o controle absoluto da sua vida financeira.</p></div>`);
+                dicas.push(`<div class="border-l-4 border-green-500 bg-green-50 p-4 rounded"><h4 class="font-bold text-green-800"><i class="fas fa-check-circle"></i> Conta Saudável!</h4><p class="text-green-700 text-sm mt-1">Sua distribuição de gastos está equilibrada. Continue mantendo o hábito de registrar tudo.</p></div>`);
             }
 
             container.innerHTML = dicas.join('');
         }
 
-        // Restante das funções (Metas, Streaks, Gráficos, Academia)
         async function updateStreak(user) {
             const userRef = doc(db, 'users', user.uid);
             const userSnap = await getDoc(userRef);
@@ -516,13 +497,145 @@
             });
         }
 
+        // ==========================================
+        // TEXTOS OFICIAIS DA ACADEMIA FINANCEIRA
+        // ==========================================
         const academyContents = {
-            1: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 1: O Raio-X Financeiro e os Gastos Invisíveis</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O maior erro de quem vive no aperto não é ganhar pouco, é <strong>não saber para onde o dinheiro está indo</strong>.</p><p>Sabe aquele cafezinho todo dia? O Uber que você pede com preguiça de caminhar 2 quarteirões? Juntos, formam um buraco no seu navio financeiro.</p><div class="bg-blue-50 border-l-4 border-blue-500 p-5 my-6"><h4 class="font-bold text-blue-800 mb-2">A Inflação do Estilo de Vida</h4><p class="text-base text-blue-900">À medida que você ganha mais, gasta mais. Se não tiver um Raio-X, ganhar mais apenas o tornará um "pobre premium".</p></div></div>`,
-            2: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 2: A Regra 50/30/20</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6"><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-red-500 mb-2">50% Necessidades</h4><p class="text-sm text-gray-600">Aluguel, supermercado, energia. O custo da sua sobrevivência.</p></div><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-yellow-500 mb-2">30% Desejos</h4><p class="text-sm text-gray-600">Aqui entram o iFood, o restaurante, o lazer.</p></div><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-green-500 mb-2">20% O Seu Futuro</h4><p class="text-sm text-gray-600">Seu "Pague-se Primeiro" para investir e quitar dívidas.</p></div></div></div>`,
-            3: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 3: Bola de Neve (Dívidas)</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>A estratégia foca nas pequenas vitórias para criar momentum.</p><ul class="list-none space-y-4 my-6"><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">1</span><p>Liste todas as dívidas em ordem de valor total.</p></li><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">2</span><p>Pague o MÍNIMO das grandes e ataque a menor dívida com força total.</p></li><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">3</span><p>Quando a primeira for quitada, some o valor pago ao pagamento da segunda. Efeito avalanche.</p></li></ul></div>`,
-            4: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 4: O Escudo Financeiro</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><div class="bg-gray-100 p-6 rounded my-4"><h4 class="font-bold text-gray-800 mb-2">Qual o tamanho ideal?</h4><ul class="list-disc pl-5 text-base"><li><strong>CLT:</strong> 6 meses do seu custo de vida.</li><li><strong>Autônomo/Motorista:</strong> 9 a 12 meses, pois a renda flutua.</li></ul></div><p>O lugar do seu Escudo é no Tesouro Selic ou em um CDB de Liquidez Diária.</p></div>`,
-            5: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 5: Dominando o Cartão</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O cartão não é seu inimigo; a sua falta de controle é. Nunca compre no crédito se não tiver o dinheiro na conta.</p></div>`,
-            6: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 6: Juros Compostos</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O tempo é o ingrediente secreto. O melhor dia para investir foi há 10 anos, o segundo melhor é hoje.</p></div>`
+            1: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 1: O Raio-X Financeiro e os Gastos Invisíveis</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>A educação financeira começa com o conhecimento da própria realidade. Antes de pensar em economizar, investir ou realizar grandes sonhos, é fundamental entender como você utiliza o seu dinheiro. Muitas pessoas acreditam que ganham pouco ou que o dinheiro simplesmente desaparece ao longo do mês, mas nem sempre percebem que pequenas despesas, quando somadas, podem comprometer uma parte significativa da renda.</p>
+                    <p>O primeiro passo é fazer um verdadeiro raio-X financeiro, ou seja, analisar detalhadamente quanto dinheiro entra, quanto sai e para onde ele está indo. Isso significa colocar no papel todas as fontes de renda, como salário, aposentadoria, benefícios ou trabalhos extras, e comparar esses valores com as despesas mensais.</p>
+                    <p>Nesse processo, é importante identificar os gastos fixos, como aluguel, água, energia, internet e prestações, e os gastos variáveis, como alimentação, transporte, lazer, compras e medicamentos. Essa organização permite visualizar quais despesas são essenciais, quais podem ser reduzidas e onde existem oportunidades de economia.</p>
+                    <p><strong>Os Gastos Invisíveis:</strong> Um dos principais desafios para manter uma vida financeira equilibrada são os chamados gastos invisíveis. Eles são pequenas despesas do cotidiano que, isoladamente, parecem não fazer diferença, mas que, acumuladas ao longo do mês, podem representar um valor considerável.</p>
+                    <p>Imagine, por exemplo, uma pessoa que compra um café todos os dias, pede comida por aplicativo algumas vezes na semana, paga assinaturas que quase não utiliza ou realiza pequenas compras por impulso. Cada gasto pode parecer insignificante, mas, ao final do mês, a soma pode surpreender.</p>
+                    <p>Por isso, é importante desenvolver o hábito de questionar cada compra: <em>Eu realmente preciso disso? Esse gasto estava previsto no meu orçamento? Existe uma alternativa mais econômica?</em> Essas perguntas ajudam a diferenciar necessidades de desejos e tornam as decisões financeiras mais conscientes.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você sabe exatamente quanto gasta por mês?</li>
+                            <li>Costuma anotar suas pequenas despesas?</li>
+                            <li>Existe alguma assinatura ou compra recorrente que poderia ser eliminada?</li>
+                            <li>No final do mês, você consegue guardar algum dinheiro ou utiliza toda a sua renda?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: Não é possível controlar aquilo que não conhecemos. O primeiro passo para cuidar melhor do dinheiro é descobrir para onde ele está indo.</p>
+                </div>
+            `,
+            2: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 2: A Regra 50/30/20</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>Depois de conhecer melhor sua realidade financeira e identificar para onde o dinheiro está indo, chegou o momento de aprender a organizar a renda de maneira mais equilibrada. Uma das estratégias mais conhecidas e simples para isso é a <strong>Regra 50/30/20</strong>, um método que ajuda a distribuir o dinheiro entre necessidades, desejos e objetivos financeiros.</p>
+                    <p>A proposta é dividir a renda mensal em três categorias, estabelecendo limites para cada uma delas:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>50% – Necessidades:</strong> metade da renda destinada às despesas essenciais e indispensáveis para o dia a dia (aluguel, água, energia, alimentação, transporte, medicamentos).</li>
+                        <li><strong>30% – Desejos e lazer:</strong> parte destinada àquilo que melhora a qualidade de vida, mas não é indispensável (passeios, restaurantes, viagens, compras pessoais, streaming).</li>
+                        <li><strong>20% – Reserva financeira e objetivos:</strong> parcela direcionada à construção de reserva de emergência, pagamento de dívidas e investimentos.</li>
+                    </ul>
+                    <p><strong>Vamos entender na prática?</strong> Imagine uma pessoa que recebe R$ 2.000,00 por mês. Aplicando a regra, seriam R$ 1.000,00 para Necessidades, R$ 600,00 para Lazer/Desejos e R$ 400,00 para Reserva e Objetivos.</p>
+                    <p>A Regra 50/30/20 não precisa ser seguida de maneira rígida. Quem tem renda menor ou muitas despesas essenciais pode precisar adaptar os percentuais. O mais importante é estabelecer uma divisão possível, respeitando suas condições.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você costuma separar uma parte da sua renda antes de começar a gastar?</li>
+                            <li>Quanto da sua renda é destinado às necessidades básicas?</li>
+                            <li>Seria possível reduzir algum gasto com lazer ou compras?</li>
+                            <li>Qual valor você conseguiria guardar mensalmente, mesmo que pequeno?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: Organizar o dinheiro é dar uma função para cada parte da sua renda. Não importa quanto você ganha, mas como planeja e utiliza o que recebe.</p>
+                </div>
+            `,
+            3: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 3: Bola de Neve (Dívidas)</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>Depois de organizar a renda, precisamos falar sobre um dos maiores desafios: as dívidas. Cartão de crédito, empréstimos e contas atrasadas podem comprometer o orçamento. Quando acumulamos dívidas, é comum sentir que trabalhamos apenas para pagar contas devido aos juros e encargos.</p>
+                    <p>Uma estratégia que ajuda nesse processo é o <strong>método Bola de Neve</strong>, uma técnica de organização e pagamento que busca criar motivação por meio de pequenas conquistas.</p>
+                    <p><strong>Como funciona?</strong></p>
+                    <ol class="list-decimal pl-5 space-y-2">
+                        <li><strong>Liste todas as dívidas:</strong> anote credor, valor devido, parcelas e juros.</li>
+                        <li><strong>Organize da menor para a maior:</strong> coloque a menor dívida no topo.</li>
+                        <li><strong>Mantenha pagamentos mínimos:</strong> pague o mínimo das demais para evitar novos encargos.</li>
+                        <li><strong>Concentre o dinheiro extra na menor dívida:</strong> acelere a quitação dela.</li>
+                        <li><strong>Passe para a próxima:</strong> utilize o valor liberado para somar na dívida seguinte, formando uma verdadeira avalanche.</li>
+                    </ol>
+                    <p><em>Nota:</em> O método Bola de Neve prioriza a motivação. Se houver dívidas com juros altíssimos (como rotativo de cartão), o método Avalanche (focado nas maiores taxas) pode ser mais econômico.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você sabe exatamente quanto deve atualmente?</li>
+                            <li>Quais dívidas estão comprometendo mais sua renda?</li>
+                            <li>Já tentou negociar alguma dívida com seus credores?</li>
+                            <li>Qual seria a primeira dívida que você gostaria de quitar?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: Sair das dívidas exige planejamento, disciplina e paciência. Cada pequena conquista aproxima você da tranquilidade financeira.</p>
+                </div>
+            `,
+            4: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 4: O Escudo Financeiro</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>Não basta saber economizar: também é preciso estar preparado para situações inesperadas. É nesse contexto que surge a importância do <strong>escudo financeiro</strong>, representado pela reserva de emergência.</p>
+                    <p>Ela funciona como proteção para momentos em que surgem despesas não previstas (desemprego, problemas de saúde, consertos urgentes), evitando que você recorra a empréstimos e endividamento.</p>
+                    <p><strong>Como construir?</strong> Uma recomendação comum é acumular o equivalente a 3 a 6 meses das despesas essenciais (ou 9 a 12 meses para autônomos e quem tem renda instável). O dinheiro deve ser guardado em locais seguros e de alta liquidez, como o Tesouro Selic ou CDB com liquidez diária.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você possui algum dinheiro guardado para situações inesperadas?</li>
+                            <li>Se perdesse sua principal fonte de renda hoje, por quanto tempo conseguiria manter suas despesas?</li>
+                            <li>Quanto conseguiria guardar mensalmente para construir sua reserva?</li>
+                            <li>Você costuma utilizar o cartão de crédito quando aparece uma despesa inesperada?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: Guardar dinheiro é importante, mas construir uma proteção financeira é essencial. A reserva transforma imprevistos em situações administráveis.</p>
+                </div>
+            `,
+            5: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 5: Dominando o Cartão</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>O cartão de crédito pode ser um grande aliado pela praticidade, mas quando usado sem planejamento torna-se vilão. O limite do cartão <strong>não é extensão da sua renda</strong>, mas sim um valor que o banco empresta e que precisará ser pago.</p>
+                    <p><strong>Pontos fundamentais:</strong></p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Fatura e Vencimento:</strong> Conheça a data de fechamento e pague sempre o valor total.</li>
+                        <li><strong>Cuidado com o Rotativo:</strong> Não pagar a fatura integral ativa o crédito rotativo, cujos juros são altíssimos.</li>
+                        <li><strong>Compras Parceladas:</strong> Várias parcelas pequenas comprometem o orçamento futuro sem você perceber.</li>
+                        <li><strong>Limite Pessoal:</strong> Estabeleça um teto de gastos baseado na sua realidade, e não no limite total que o banco aprova.</li>
+                    </ul>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você costuma pagar o valor total da sua fatura?</li>
+                            <li>Já comprou alguma coisa porque ainda tinha limite disponível?</li>
+                            <li>Sabe quanto da sua renda está comprometido com compras parceladas?</li>
+                            <li>Você acompanha suas despesas no cartão antes de receber a fatura?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: O limite do cartão não é dinheiro extra. Utilize apenas o que pode pagar para não comprometer seu futuro.</p>
+                </div>
+            `,
+            6: `
+                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 6: Juros Compostos</h2>
+                <div class="space-y-4 text-gray-700 text-base leading-relaxed">
+                    <p>Os juros compostos ("juros sobre juros") são um dos conceitos mais importantes da educação financeira. Eles incidem sobre o valor inicial somado aos juros acumulados nos períodos anteriores, gerando crescimento exponencial (efeito bola de neve).</p>
+                    <p><strong>O poder do tempo:</strong> Nos investimentos, quanto mais tempo o dinheiro fica aplicado, maior o ganho. Começar cedo, mesmo com pouco, faz toda a diferença. Por outro lado, nas dívidas e atrasos, os juros compostos trabalham contra você de forma implacável.</p>
+                    
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg my-4">
+                        <h4 class="font-bold text-blue-800 mb-2">Vamos refletir?</h4>
+                        <ul class="list-disc pl-5 space-y-1 text-sm text-blue-900">
+                            <li>Você sabia que os juros podem incidir sobre juros acumulados?</li>
+                            <li>Já percebeu como uma dívida pode crescer quando fica muito tempo sem pagamento?</li>
+                            <li>Você costuma pesquisar as taxas de juros antes de contratar um empréstimo?</li>
+                            <li>Se pudesse começar a investir hoje, mesmo com pouco dinheiro, qual seria seu primeiro objetivo?</li>
+                        </ul>
+                    </div>
+                    <p class="font-bold text-blue-900">A principal lição deste módulo: O tempo pode ser seu maior aliado ou seu maior inimigo financeiro. Coloque os juros compostos para trabalhar a seu favor.</p>
+                </div>
+            `
         };
 
         window.changeAcademyModule = function(id) {
