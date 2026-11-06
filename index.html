@@ -4,16 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartFin - Controle e Evolução Financeira</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js para Gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         .module-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         .module-btn { transition: all 0.2s ease-in-out; }
+        .cat-badge { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
@@ -55,7 +53,7 @@
                 <ul class="space-y-2">
                     <li><button onclick="switchTab('visao-geral')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-home w-6"></i> Visão Geral</button></li>
                     <li><button onclick="switchTab('transacoes')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-exchange-alt w-6"></i> Transações</button></li>
-                    <li><button onclick="switchTab('relatorios')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-chart-pie w-6"></i> Relatórios</button></li>
+                    <li><button onclick="switchTab('relatorios')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-chart-pie w-6"></i> Relatórios Inteligentes</button></li>
                     <li><button onclick="switchTab('metas')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-bullseye w-6"></i> Metas</button></li>
                     <li><button onclick="switchTab('academia')" class="w-full text-left p-3 rounded-lg bg-blue-600 bg-opacity-20 text-blue-400 font-semibold hover:bg-blue-600 hover:text-white"><i class="fas fa-graduation-cap w-6"></i> Academia</button></li>
                 </ul>
@@ -69,9 +67,8 @@
         <nav class="md:hidden fixed bottom-0 w-full bg-gray-900 text-white flex justify-around p-3 z-50">
             <button onclick="switchTab('visao-geral')" class="flex flex-col items-center text-xs"><i class="fas fa-home text-lg mb-1"></i> Início</button>
             <button onclick="switchTab('transacoes')" class="flex flex-col items-center text-xs"><i class="fas fa-exchange-alt text-lg mb-1"></i> Transações</button>
-            <button onclick="switchTab('metas')" class="flex flex-col items-center text-xs"><i class="fas fa-bullseye text-lg mb-1"></i> Metas</button>
+            <button onclick="switchTab('relatorios')" class="flex flex-col items-center text-xs"><i class="fas fa-chart-pie text-lg mb-1"></i> Análise</button>
             <button onclick="switchTab('academia')" class="flex flex-col items-center text-xs text-blue-400"><i class="fas fa-graduation-cap text-lg mb-1"></i> Academia</button>
-            <button onclick="logoutUser()" class="flex flex-col items-center text-xs text-red-400"><i class="fas fa-sign-out-alt text-lg mb-1"></i> Sair</button>
         </nav>
 
         <!-- Conteúdo Principal -->
@@ -80,7 +77,6 @@
             <!-- ABA: VISÃO GERAL -->
             <section id="tab-visao-geral" class="tab-content block">
                 <h2 class="text-3xl font-bold mb-6">Visão Geral</h2>
-                
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm border-l-4 border-blue-500">
                         <p class="text-gray-500 text-sm">Saldo Atual</p>
@@ -95,9 +91,7 @@
                         <h3 class="text-3xl font-bold text-red-600 mt-1" id="card-despesas">R$ 0,00</h3>
                     </div>
                 </div>
-
-                <!-- CARD GAMIFICAÇÃO -->
-                <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 rounded-xl shadow-lg text-white flex flex-col md:flex-row items-center justify-between mb-8 gap-4 text-center md:text-left">
+                <div class="bg-gradient-to-r from-orange-500 to-red-500 p-6 rounded-xl shadow-lg text-white flex flex-col md:flex-row items-center justify-between mb-8 gap-4">
                     <div class="flex items-center gap-4">
                         <div class="text-6xl">🔥</div>
                         <div>
@@ -105,7 +99,7 @@
                             <p class="text-orange-100" id="streak-msg">Registre seus ganhos ou despesas para manter sua ofensiva acesa!</p>
                         </div>
                     </div>
-                    <div class="text-center bg-white bg-opacity-20 px-6 py-4 rounded-lg w-full md:w-auto">
+                    <div class="text-center bg-white bg-opacity-20 px-6 py-4 rounded-lg">
                         <span class="block text-4xl font-black" id="streak-count">0</span>
                         <span class="text-sm font-semibold uppercase tracking-wider">Dias Seguidos</span>
                     </div>
@@ -114,26 +108,33 @@
 
             <!-- ABA: TRANSAÇÕES -->
             <section id="tab-transacoes" class="tab-content hidden">
-                <h2 class="text-3xl font-bold mb-6">Transações</h2>
+                <h2 class="text-3xl font-bold mb-6">Transações e Entradas</h2>
                 <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
-                    <h3 class="text-xl font-semibold mb-4">Nova Transação</h3>
-                    <form id="form-transacao" class="grid grid-cols-1 md:grid-cols-5 gap-4" onsubmit="addTransaction(event)">
-                        <input type="text" id="trans-desc" placeholder="Descrição (ex: Supermercado)" class="border p-2 rounded col-span-2" required>
+                    <h3 class="text-xl font-semibold mb-4">Novo Registro</h3>
+                    <form id="form-transacao" class="grid grid-cols-1 md:grid-cols-6 gap-4" onsubmit="addTransaction(event)">
+                        <input type="text" id="trans-desc" placeholder="Descrição (ex: Mercado Mensal)" class="border p-2 rounded md:col-span-2" required>
                         <input type="number" id="trans-valor" placeholder="Valor (R$)" step="0.01" class="border p-2 rounded" required>
-                        <select id="trans-tipo" class="border p-2 rounded" required>
+                        
+                        <select id="trans-tipo" class="border p-2 rounded" required onchange="updateCategorias()">
+                            <option value="despesa" selected>Despesa (-)</option>
                             <option value="receita">Receita (+)</option>
-                            <option value="despesa">Despesa (-)</option>
                         </select>
-                        <button type="submit" class="bg-green-600 text-white font-bold rounded hover:bg-green-700 py-2">Adicionar</button>
+                        
+                        <!-- Categorias dinâmicas -->
+                        <select id="trans-categoria" class="border p-2 rounded" required>
+                            <!-- Prenchido pelo JavaScript -->
+                        </select>
+
+                        <button type="submit" class="bg-blue-600 text-white font-bold rounded hover:bg-blue-700 py-2">Registrar</button>
                     </form>
                 </div>
                 <div class="bg-white rounded-xl shadow-sm overflow-x-auto">
-                    <table class="w-full text-left min-w-[500px]">
+                    <table class="w-full text-left min-w-[600px]">
                         <thead class="bg-gray-100">
                             <tr>
                                 <th class="p-4">Data</th>
                                 <th class="p-4">Descrição</th>
-                                <th class="p-4">Tipo</th>
+                                <th class="p-4">Categoria</th>
                                 <th class="p-4">Valor</th>
                                 <th class="p-4">Ação</th>
                             </tr>
@@ -145,16 +146,25 @@
                 </div>
             </section>
 
-            <!-- ABA: RELATÓRIOS -->
+            <!-- ABA: RELATÓRIOS INTELIGENTES -->
             <section id="tab-relatorios" class="tab-content hidden">
-                <h2 class="text-3xl font-bold mb-6">Relatórios de Desempenho</h2>
+                <h2 class="text-3xl font-bold mb-6">Análise e Conselheiro Financeiro</h2>
+                
+                <!-- Novo Painel de Insights -->
+                <div class="bg-white p-6 rounded-xl shadow-sm mb-8 border-t-4 border-blue-600">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4"><i class="fas fa-brain text-blue-600 mr-2"></i> Diagnóstico Inteligente da sua Conta</h3>
+                    <div id="insights-container" class="space-y-4">
+                        <!-- Mensagens injetadas pelo JS -->
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="bg-white p-6 rounded-xl shadow-sm">
                         <h3 class="font-semibold text-lg mb-4 text-center">Receitas vs Despesas</h3>
                         <canvas id="pieChart"></canvas>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-sm">
-                        <h3 class="font-semibold text-lg mb-4 text-center">Fluxo (Últimos Registros)</h3>
+                        <h3 class="font-semibold text-lg mb-4 text-center">Fluxo de Caixa (Recente)</h3>
                         <canvas id="barChart"></canvas>
                     </div>
                 </div>
@@ -162,10 +172,10 @@
 
             <!-- ABA: METAS -->
             <section id="tab-metas" class="tab-content hidden">
-                <h2 class="text-3xl font-bold mb-6">Metas Financeiras</h2>
+                <h2 class="text-3xl font-bold mb-6">Metas e Escudos Financeiros</h2>
                 <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
                     <form id="form-meta" class="grid grid-cols-1 md:grid-cols-4 gap-4" onsubmit="addGoal(event)">
-                        <input type="text" id="meta-nome" placeholder="Nome da Meta (ex: Viagem)" class="border p-2 rounded md:col-span-2" required>
+                        <input type="text" id="meta-nome" placeholder="Nome da Meta (ex: Reserva de Emergência)" class="border p-2 rounded md:col-span-2" required>
                         <input type="number" id="meta-valor" placeholder="Valor Total (R$)" step="0.01" class="border p-2 rounded" required>
                         <button type="submit" class="bg-blue-600 text-white font-bold rounded hover:bg-blue-700 py-2">Criar Meta</button>
                     </form>
@@ -181,11 +191,11 @@
                     <div class="w-full md:w-1/3 bg-white rounded-xl shadow-sm p-4 overflow-y-auto">
                         <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Módulos do Curso</h3>
                         <div class="flex flex-col gap-2">
-                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn active text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 1: O Raio-X Financeiro</button>
+                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn active text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 1: Gastos Invisíveis</button>
                             <button onclick="changeAcademyModule(2)" id="mod-btn-2" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 2: A Regra 50/30/20</button>
-                            <button onclick="changeAcademyModule(3)" id="mod-btn-3" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 3: Estratégia Bola de Neve</button>
-                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 4: O Escudo Financeiro</button>
-                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 5: Dominando o Cartão</button>
+                            <button onclick="changeAcademyModule(3)" id="mod-btn-3" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 3: Bola de Neve (Dívidas)</button>
+                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 4: Escudo Financeiro</button>
+                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 5: Domínio do Cartão</button>
                             <button onclick="changeAcademyModule(6)" id="mod-btn-6" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 6: Juros Compostos</button>
                         </div>
                     </div>
@@ -198,31 +208,11 @@
         </main>
     </div>
 
-    <!-- SCRIPT FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            createUserWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            doc, 
-            getDoc, 
-            setDoc, 
-            updateDoc, 
-            deleteDoc, 
-            onSnapshot, 
-            query, 
-            orderBy 
-        } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
 
-        // Configuração real do seu Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBoeFJeK1Dq93wSPSvjFJTh4eC1Tan3jzY",
             authDomain: "usuarios-compradores.firebaseapp.com",
@@ -242,28 +232,40 @@
         let barChartInstance = null;
         let transacoesGlobais = [];
 
-        // LOGIN COM TRATAMENTO DE ERROS DE SENHA INVÁLIDA
+        // Atualizador de Categorias do Formulário
+        window.updateCategorias = function() {
+            const tipo = document.getElementById('trans-tipo').value;
+            const catSelect = document.getElementById('trans-categoria');
+            catSelect.innerHTML = '';
+            
+            if (tipo === 'receita') {
+                catSelect.innerHTML = `
+                    <option value="Receita Fixa">Receita Fixa (Salário)</option>
+                    <option value="Receita Variável">Receita Variável (Extra/Vendas)</option>
+                    <option value="Rendimento">Rendimentos de Investimento</option>
+                `;
+            } else {
+                catSelect.innerHTML = `
+                    <option value="Alimentação">Alimentação (Mercado/Comidas)</option>
+                    <option value="Transporte">Transporte (Uber/Combustível)</option>
+                    <option value="Moradia">Moradia (Aluguel/Contas da Casa)</option>
+                    <option value="Saúde">Saúde (Plano/Farmácia)</option>
+                    <option value="Lazer">Lazer & Desejos (Saídas/Assinaturas)</option>
+                    <option value="Emergência">Imprevistos / Emergência</option>
+                    <option value="Outros">Outros Gastos</option>
+                `;
+            }
+        };
+
         window.loginUser = async function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            
-            if(!email || !password) {
-                alert("Por favor, preencha o seu e-mail e senha.");
-                return;
-            }
-
+            if(!email || !password) return alert("Preencha o e-mail e senha.");
             try {
                 await signInWithEmailAndPassword(auth, email, password);
             } catch (error) {
-                console.error("Código de erro do Firebase:", error.code);
-                
-                // Mensagens amigáveis para o usuário
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    alert("Acesso Negado: Senha inválida ou e-mail não cadastrado. Verifique os dados e tente novamente.");
-                } else if (error.code === 'auth/too-many-requests') {
-                    alert("Acesso temporariamente bloqueado devido a muitas tentativas falhas. Tente novamente mais tarde.");
-                } else if (error.code === 'auth/invalid-email') {
-                    alert("O formato do e-mail digitado é inválido.");
+                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+                    alert("Acesso Negado: Senha ou e-mail incorretos.");
                 } else {
                     alert("Erro ao fazer login: " + error.message);
                 }
@@ -273,47 +275,27 @@
         window.registerUser = async function() {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
-            
-            if(!email || !password) {
-                alert("Preencha e-mail e senha para criar a conta."); 
-                return;
-            }
-
-            if(password.length < 6) {
-                alert("A senha precisa ter pelo menos 6 caracteres.");
-                return;
-            }
+            if(!email || !password) return alert("Preencha e-mail e senha.");
+            if(password.length < 6) return alert("A senha precisa de 6 caracteres.");
 
             try {
                 const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-
-                await setDoc(doc(db, "users", user.uid), {
-                    email: user.email,
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    email: userCredential.user.email,
                     streak: 1,
                     lastLogin: new Date().toISOString()
                 });
-
                 alert("Conta criada com sucesso! Bem-vindo.");
             } catch (error) {
-                if (error.code === 'auth/email-already-in-use') {
-                    alert("Este e-mail já está cadastrado. Por favor, clique em 'Entrar na Plataforma'.");
-                } else {
-                    alert("Erro ao criar conta: " + error.message);
-                }
+                alert("Erro: " + (error.code === 'auth/email-already-in-use' ? "E-mail já cadastrado. Faça login." : error.message));
             }
         };
 
-        window.logoutUser = function() {
-            signOut(auth);
-        };
+        window.logoutUser = function() { signOut(auth); };
 
         window.switchTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-            });
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            
             if(tabId === 'relatorios') renderCharts();
         };
 
@@ -322,162 +304,21 @@
             const desc = document.getElementById('trans-desc').value;
             const valor = parseFloat(document.getElementById('trans-valor').value);
             const tipo = document.getElementById('trans-tipo').value;
+            const categoria = document.getElementById('trans-categoria').value;
 
             await addDoc(collection(db, `users/${currentUser.uid}/transactions`), {
                 descricao: desc,
                 valor: valor,
                 tipo: tipo,
+                categoria: categoria,
                 data: new Date().toISOString()
             });
-
             document.getElementById('form-transacao').reset();
+            updateCategorias(); // Reseta o form para padrão
         };
 
         window.deleteTransaction = async function(id) {
-            if(confirm("Excluir transação?")) {
-                await deleteDoc(doc(db, `users/${currentUser.uid}/transactions`, id));
-            }
-        };
-
-        window.addGoal = async function(e) {
-            e.preventDefault();
-            const nome = document.getElementById('meta-nome').value;
-            const valorTotal = parseFloat(document.getElementById('meta-valor').value);
-
-            await addDoc(collection(db, `users/${currentUser.uid}/goals`), {
-                nome: nome,
-                valorTotal: valorTotal,
-                valorAtual: 0,
-                createdAt: new Date().toISOString()
-            });
-
-            document.getElementById('form-meta').reset();
-        };
-
-        window.updateGoalProgress = async function(id, valorAtual) {
-            const input = document.getElementById(`add-val-${id}`);
-            const valorAdd = parseFloat(input.value);
-            if(isNaN(valorAdd) || valorAdd <= 0) return alert("Insira um valor válido.");
-            
-            await updateDoc(doc(db, `users/${currentUser.uid}/goals`, id), {
-                valorAtual: valorAtual + valorAdd
-            });
-        };
-
-        window.deleteGoal = async function(id) {
-            if(confirm("Excluir esta meta?")) {
-                await deleteDoc(doc(db, `users/${currentUser.uid}/goals`, id));
-            }
-        };
-
-        // CONTEÚDO DA ACADEMIA COM TEXTOS RICOS
-        const academyContents = {
-            1: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 1: O Raio-X Financeiro e os Gastos Invisíveis</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p>O maior erro de quem vive no aperto financeiro não é ganhar pouco, é <strong>não saber para onde o dinheiro está indo</strong>. A maioria das pessoas sofre da "Fobia do Extrato": o medo paralisante de abrir o aplicativo do banco e encarar a realidade.</p>
-                    <p>Nós chamamos esse fenômeno de <strong>Gastos Invisíveis</strong>. Sabe aquele cafezinho de R$ 8 na padaria todo dia? As assinaturas de streaming que você mal assiste? A tarifa bancária? Eles parecem inofensivos sozinhos, mas juntos, formam um buraco no casco do seu navio financeiro.</p>
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg my-6">
-                        <h4 class="font-bold text-blue-800 mb-2">A Inflação do Estilo de Vida</h4>
-                        <p class="text-base text-blue-900">À medida que você ganha mais, a tendência natural é gastar mais. O carro muda, o restaurante fica mais caro. Se você não tiver um Raio-X exato da sua vida, ganhar mais dinheiro apenas o tornará um "pobre premium".</p>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-800 mt-4">Sua Missão Prática:</h3>
-                    <p>Vá para a aba de Transações e registre absolutamente tudo. Transforme a organização em um hábito inegociável.</p>
-                </div>
-                <button onclick="switchTab('transacoes')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-6 transition-all duration-300 transform hover:scale-105">Ir para Transações</button>
-            `,
-            2: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 2: A Regra de Ouro 50/30/20</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p>A riqueza de verdade mora na simplicidade. O método <strong>50/30/20</strong> é uma regra universal e infalível para blindar o seu salário.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
-                        <div class="border p-5 rounded-lg shadow-sm bg-white">
-                            <h4 class="font-black text-xl text-red-500 mb-2">50% Necessidades</h4>
-                            <p class="text-base text-gray-600">Aluguel, supermercado, energia. É o custo da sua sobrevivência. Se você perder o emprego hoje, é esse valor que você precisa.</p>
-                        </div>
-                        <div class="border p-5 rounded-lg shadow-sm bg-white">
-                            <h4 class="font-black text-xl text-yellow-500 mb-2">30% Desejos</h4>
-                            <p class="text-base text-gray-600">A vida não é só pagar boleto. Aqui entram o iFood, o restaurante, o lazer. O segredo é curtir a vida sem ultrapassar essa fatia.</p>
-                        </div>
-                        <div class="border p-5 rounded-lg shadow-sm bg-white">
-                            <h4 class="font-black text-xl text-green-500 mb-2">20% O Seu Futuro</h4>
-                            <p class="text-base text-gray-600">Este é o seu "Pague-se Primeiro". Separe para quitar dívidas, montar sua reserva ou investir em ativos.</p>
-                        </div>
-                    </div>
-                </div>
-            `,
-            3: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 3: A Estratégia "Bola de Neve" para Dívidas</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p>Nós não somos robôs movidos a matemática, somos humanos movidos a emoção e psicologia. A <strong>Estratégia Bola de Neve</strong> foca nas <strong>pequenas vitórias</strong> para criar momentum.</p>
-                    <ul class="list-none space-y-4 my-6">
-                        <li class="flex items-start">
-                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">1</span>
-                            <p>Liste todas as suas dívidas em ordem de valor total, da menor até a maior.</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">2</span>
-                            <p>Pague o MÍNIMO das grandes e ataque a <strong>menor dívida</strong> com todo o dinheiro extra que sobrar.</p>
-                        </li>
-                        <li class="flex items-start">
-                            <span class="bg-blue-600 text-white font-bold rounded-full w-8 h-8 flex items-center justify-center mr-4 shrink-0">3</span>
-                            <p>Quando a primeira for quitada, pegue o valor dela e some ao pagamento da segunda. Você começa a destruir as dívidas em avalanche.</p>
-                        </li>
-                    </ul>
-                </div>
-            `,
-            4: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 4: O Escudo Financeiro (Reserva)</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p>Esse dinheiro não serve para te deixar rico, serve para impedir que você fique pobre quando a vida der errado.</p>
-                    <div class="bg-gray-100 p-6 rounded-lg border-l-4 border-gray-500 my-4">
-                        <h4 class="font-bold text-gray-800 mb-2">Qual o tamanho ideal do seu Escudo?</h4>
-                        <ul class="list-disc pl-5 space-y-2 text-base">
-                            <li><strong>CLT:</strong> 6 meses do seu custo de vida (Apenas os 50% de Necessidades).</li>
-                            <li><strong>Autônomo/Empreendedor:</strong> 9 a 12 meses, pois a sua renda flutua muito.</li>
-                        </ul>
-                    </div>
-                    <p>O lugar do seu Escudo é no Tesouro Selic ou em um CDB de Liquidez Diária (poder sacar no mesmo dia). A paz de espírito é o que te permite tomar decisões com ousadia, ao invés de decidir pelo medo.</p>
-                </div>
-                <button onclick="switchTab('metas')" class="bg-blue-600 text-white font-bold py-3 px-6 rounded shadow hover:bg-blue-700 mt-6 transition-all duration-300 transform hover:scale-105">Criar a Meta do meu Escudo</button>
-            `,
-            5: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 5: Dominando o Jogo do Cartão de Crédito</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p><strong>O cartão de crédito não é seu inimigo; a sua falta de controle é.</strong> Nas mãos certas, ele é a ferramenta mais poderosa para alavancar sua vida e viajar de graça.</p>
-                    <div class="bg-green-50 p-6 rounded-lg border-l-4 border-green-500 my-4">
-                        <h4 class="font-bold text-green-800 mb-2">Como usar o sistema a seu favor:</h4>
-                        <ul class="list-disc pl-5 space-y-2 text-base text-green-900">
-                            <li><strong>Regra de Ouro:</strong> Nunca compre no crédito se você não tiver aquele valor na conta corrente naquele exato momento.</li>
-                            <li><strong>O Fluxo de Caixa Mágico:</strong> Comprando no "Melhor Dia", o banco te empresta dinheiro a 0% de juros por 40 dias.</li>
-                            <li><strong>Pontos e Milhas:</strong> Concentre gastos básicos para gerar milhas aéreas.</li>
-                            <li><strong>O Perigo:</strong> Nunca pague apenas o mínimo da fatura. Os juros são de 400% ao ano.</li>
-                        </ul>
-                    </div>
-                </div>
-            `,
-            6: `
-                <h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 6: A Mágica dos Juros Compostos</h2>
-                <div class="space-y-5 text-gray-700 text-lg leading-relaxed">
-                    <p>A riqueza de verdade não é construída com sorte, mas sim com <strong>constância e tempo</strong>. Os juros compostos rendem sobre os juros do mês anterior, criando uma curva exponencial infinita.</p>
-                    <div class="bg-gray-800 text-white p-6 rounded-lg shadow-lg my-6">
-                        <h4 class="font-bold text-blue-400 mb-3 text-xl">O Poder do Tempo (A Prova Real):</h4>
-                        <ul class="space-y-3">
-                            <li><span class="text-blue-400 font-bold">Amigo A:</span> Investe R$ 300 dos 20 aos 30 anos (10 anos) e deixa render.</li>
-                            <li><span class="text-yellow-400 font-bold">Amigo B:</span> Começa aos 30 e investe R$ 300 por 30 anos seguidos.</li>
-                        </ul>
-                        <p class="mt-4 font-bold text-green-400">Resultado aos 60 anos:</p>
-                        <p class="text-gray-300">O Amigo A, que investiu por muito menos tempo mas começou cedo, terá mais dinheiro. O dinheiro teve mais TEMPO para se multiplicar.</p>
-                    </div>
-                    <p>O melhor dia para plantar uma árvore foi há 10 anos. O segundo melhor momento é <strong>hoje</strong>.</p>
-                </div>
-            `
-        };
-
-        window.changeAcademyModule = function(id) {
-            document.querySelectorAll('.module-btn').forEach(btn => btn.classList.remove('active', 'bg-blue-600', 'text-white'));
-            document.getElementById(`mod-btn-${id}`).classList.add('active', 'bg-blue-600', 'text-white');
-            document.getElementById('module-content').innerHTML = academyContents[id];
+            if(confirm("Excluir transação?")) await deleteDoc(doc(db, `users/${currentUser.uid}/transactions`, id));
         };
 
         onAuthStateChanged(auth, (user) => {
@@ -486,7 +327,6 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('user-email-display').innerText = user.email;
-                
                 updateStreak(user);
                 loadTransactions(user);
                 loadGoals(user);
@@ -496,41 +336,18 @@
             }
         });
 
-        async function updateStreak(user) {
-            const userRef = doc(db, 'users', user.uid);
-            const userSnap = await getDoc(userRef);
-            
-            if (userSnap.exists()) {
-                const data = userSnap.data();
-                const today = new Date().toISOString().split('T')[0];
-                const lastLoginDate = data.lastLogin ? data.lastLogin.split('T')[0] : null;
-                let currentStreak = data.streak || 0;
-
-                if (lastLoginDate !== today) {
-                    const yesterday = new Date();
-                    yesterday.setDate(yesterday.getDate() - 1);
-                    const yesterdayStr = yesterday.toISOString().split('T')[0];
-
-                    if (lastLoginDate === yesterdayStr) {
-                        currentStreak += 1;
-                    } else {
-                        currentStreak = 1;
-                    }
-
-                    await updateDoc(userRef, {
-                        streak: currentStreak,
-                        lastLogin: new Date().toISOString()
-                    });
-                }
-                document.getElementById('streak-count').innerText = currentStreak;
-            }
-        }
-
+        // ==========================================
+        // MOTOR DE ANÁLISE E TRANSAÇÕES
+        // ==========================================
         function loadTransactions(user) {
             const q = query(collection(db, `users/${user.uid}/transactions`), orderBy('data', 'desc'));
             onSnapshot(q, (snapshot) => {
                 let totalReceitas = 0;
                 let totalDespesas = 0;
+                
+                // Objeto para guardar quanto gastou em cada categoria
+                let gastosPorCategoria = {}; 
+
                 const tbody = document.getElementById('tabela-transacoes');
                 tbody.innerHTML = '';
                 transacoesGlobais = [];
@@ -539,20 +356,28 @@
                     const data = docSnap.data();
                     data.id = docSnap.id;
                     transacoesGlobais.push(data);
-
-                    if (data.tipo === 'receita') totalReceitas += data.valor;
-                    if (data.tipo === 'despesa') totalDespesas += data.valor;
+                    
+                    // Somatórias gerais
+                    if (data.tipo === 'receita') {
+                        totalReceitas += data.valor;
+                    } else {
+                        totalDespesas += data.valor;
+                        // Soma específica da categoria
+                        if (!gastosPorCategoria[data.categoria]) gastosPorCategoria[data.categoria] = 0;
+                        gastosPorCategoria[data.categoria] += data.valor;
+                    }
 
                     const dataFormatada = new Date(data.data).toLocaleDateString('pt-BR');
                     const corValor = data.tipo === 'receita' ? 'text-green-600' : 'text-red-600';
                     const sinal = data.tipo === 'receita' ? '+' : '-';
+                    const catBg = data.tipo === 'receita' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700';
 
                     tbody.innerHTML += `
                         <tr>
-                            <td class="p-4 text-sm text-gray-600 whitespace-nowrap">${dataFormatada}</td>
+                            <td class="p-4 text-sm text-gray-600">${dataFormatada}</td>
                             <td class="p-4 font-medium">${data.descricao}</td>
-                            <td class="p-4 uppercase text-xs font-bold text-gray-400">${data.tipo}</td>
-                            <td class="p-4 font-bold ${corValor} whitespace-nowrap">${sinal} R$ ${data.valor.toFixed(2)}</td>
+                            <td class="p-4"><span class="cat-badge ${catBg}">${data.categoria || 'Sem Categoria'}</span></td>
+                            <td class="p-4 font-bold ${corValor}">${sinal} R$ ${data.valor.toFixed(2)}</td>
                             <td class="p-4 text-sm text-red-500 cursor-pointer" onclick="deleteTransaction('${docSnap.id}')">Excluir</td>
                         </tr>
                     `;
@@ -562,85 +387,152 @@
                 document.getElementById('card-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
                 document.getElementById('card-saldo').innerText = `R$ ${(totalReceitas - totalDespesas).toFixed(2)}`;
                 
+                generateInsights(totalReceitas, totalDespesas, gastosPorCategoria);
                 renderCharts();
             });
         }
 
-        function loadGoals(user) {
-            const q = query(collection(db, `users/${user.uid}/goals`), orderBy('createdAt', 'desc'));
-            onSnapshot(q, (snapshot) => {
-                const listaMetas = document.getElementById('lista-metas');
-                listaMetas.innerHTML = '';
+        // ==========================================
+        // CONSELHEIRO FINANCEIRO VIRTUAL (INSIGHTS)
+        // ==========================================
+        function generateInsights(totalRec, totalDes, gastosPorCat) {
+            const container = document.getElementById('insights-container');
+            container.innerHTML = '';
 
+            if (totalDes === 0 && totalRec === 0) {
+                container.innerHTML = '<p class="text-gray-500 p-4 border rounded bg-gray-50">Registre suas receitas e despesas para que o Conselheiro possa analisar seu padrão financeiro.</p>';
+                return;
+            }
+
+            let dicas = [];
+
+            // Regra do Lazer (> 30% é perigoso segundo regra 50/30/20)
+            if (gastosPorCat['Lazer'] && totalDes > 0) {
+                let perc = (gastosPorCat['Lazer'] / totalDes) * 100;
+                if (perc > 30) dicas.push(`<div class="border-l-4 border-yellow-500 bg-yellow-50 p-4 rounded"><h4 class="font-bold text-yellow-800"><i class="fas fa-exclamation-triangle"></i> Alerta de Lazer (${perc.toFixed(1)}% dos gastos)</h4><p class="text-yellow-700 text-sm mt-1">Seus gastos com lazer estão invadindo o espaço das suas necessidades. Tente segurar as saídas e o iFood para não comprometer a regra 50/30/20.</p></div>`);
+            }
+
+            // Regra do Transporte/Uber (> 15% das despesas chama atenção)
+            if (gastosPorCat['Transporte'] && totalDes > 0) {
+                let perc = (gastosPorCat['Transporte'] / totalDes) * 100;
+                if (perc > 15) dicas.push(`<div class="border-l-4 border-red-500 bg-red-50 p-4 rounded"><h4 class="font-bold text-red-800"><i class="fas fa-car"></i> Gastos Altos com Transporte (${perc.toFixed(1)}%)</h4><p class="text-red-700 text-sm mt-1">O peso do Uber e combustível está muito alto na sua vida. Vale a pena avaliar alternativas, renegociar rotas ou concentrar saídas no mesmo dia.</p></div>`);
+            }
+
+            // Regra de Alimentação (> 30% chama atenção)
+            if (gastosPorCat['Alimentação'] && totalDes > 0) {
+                let perc = (gastosPorCat['Alimentação'] / totalDes) * 100;
+                if (perc > 30) dicas.push(`<div class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded"><h4 class="font-bold text-orange-800"><i class="fas fa-utensils"></i> Peso da Alimentação (${perc.toFixed(1)}%)</h4><p class="text-orange-700 text-sm mt-1">Mercado e comida estão consumindo uma fatia gigante. Faça sempre listas antes de ir ao mercado para evitar o "efeito corredor" e compras por impulso.</p></div>`);
+            }
+
+            // Gastos com Emergência detectados
+            if (gastosPorCat['Emergência']) {
+                dicas.push(`<div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded"><h4 class="font-bold text-blue-800"><i class="fas fa-briefcase-medical"></i> Imprevistos Acontecem</h4><p class="text-blue-700 text-sm mt-1">Você registrou gastos emergenciais esse mês. É exatamente para isso que o Escudo Financeiro serve. Assim que o mês virar, planeje repor o valor gasto na sua reserva!</p></div>`);
+            }
+
+            // Se não gerou nenhum alerta negativo
+            if (dicas.length === 0 && totalDes > 0 && totalRec >= totalDes) {
+                dicas.push(`<div class="border-l-4 border-green-500 bg-green-50 p-4 rounded"><h4 class="font-bold text-green-800"><i class="fas fa-check-circle"></i> Conta Saudável!</h4><p class="text-green-700 text-sm mt-1">Sua distribuição de gastos está excelente e sem excessos graves aparentes. Continue alimentando a plataforma para manter o controle absoluto da sua vida financeira.</p></div>`);
+            }
+
+            container.innerHTML = dicas.join('');
+        }
+
+        // Restante das funções (Metas, Streaks, Gráficos, Academia)
+        async function updateStreak(user) {
+            const userRef = doc(db, 'users', user.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+                const data = userSnap.data();
+                const today = new Date().toISOString().split('T')[0];
+                const lastLoginDate = data.lastLogin ? data.lastLogin.split('T')[0] : null;
+                let currentStreak = data.streak || 0;
+                if (lastLoginDate !== today) {
+                    const yesterday = new Date(); yesterday.setDate(yesterday.getDate() - 1);
+                    if (lastLoginDate === yesterday.toISOString().split('T')[0]) currentStreak += 1;
+                    else currentStreak = 1;
+                    await updateDoc(userRef, { streak: currentStreak, lastLogin: new Date().toISOString() });
+                }
+                document.getElementById('streak-count').innerText = currentStreak;
+            }
+        }
+
+        window.addGoal = async function(e) {
+            e.preventDefault();
+            await addDoc(collection(db, `users/${currentUser.uid}/goals`), {
+                nome: document.getElementById('meta-nome').value,
+                valorTotal: parseFloat(document.getElementById('meta-valor').value),
+                valorAtual: 0, createdAt: new Date().toISOString()
+            });
+            document.getElementById('form-meta').reset();
+        };
+
+        function loadGoals(user) {
+            onSnapshot(query(collection(db, `users/${user.uid}/goals`), orderBy('createdAt', 'desc')), (snapshot) => {
+                const lista = document.getElementById('lista-metas'); lista.innerHTML = '';
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
                     const percentual = Math.min((data.valorAtual / data.valorTotal) * 100, 100).toFixed(1);
-                    
-                    listaMetas.innerHTML += `
+                    lista.innerHTML += `
                         <div class="border rounded-lg p-4 bg-gray-50 flex flex-col gap-3 relative">
                             <button onclick="deleteGoal('${docSnap.id}')" class="absolute top-4 right-4 text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                            <div class="flex flex-col md:flex-row md:justify-between md:items-center pr-8 gap-1">
-                                <h4 class="font-bold text-lg text-gray-800">${data.nome}</h4>
-                                <span class="text-sm font-semibold text-gray-600">R$ ${data.valorAtual.toFixed(2)} / R$ ${data.valorTotal.toFixed(2)}</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-4 mt-1">
-                                <div class="bg-blue-600 h-4 rounded-full transition-all duration-500" style="width: ${percentual}%"></div>
-                            </div>
-                            <div class="flex flex-col md:flex-row justify-between md:items-center mt-2 gap-3">
+                            <h4 class="font-bold text-lg text-gray-800">${data.nome} <span class="text-sm text-gray-500 font-normal ml-2">R$ ${data.valorAtual.toFixed(2)} / R$ ${data.valorTotal.toFixed(2)}</span></h4>
+                            <div class="w-full bg-gray-200 rounded-full h-4 mt-1"><div class="bg-blue-600 h-4 rounded-full" style="width: ${percentual}%"></div></div>
+                            <div class="flex justify-between items-center mt-2">
                                 <span class="text-xs font-bold text-blue-600">${percentual}% Concluído</span>
                                 <div class="flex gap-2">
-                                    <input type="number" id="add-val-${docSnap.id}" placeholder="R$" class="border rounded p-2 w-24 text-sm">
-                                    <button onclick="updateGoalProgress('${docSnap.id}', ${data.valorAtual})" class="bg-green-500 text-white px-4 py-2 rounded text-sm font-bold shadow hover:bg-green-600">Guardar</button>
+                                    <input type="number" id="add-val-${docSnap.id}" placeholder="R$" class="border rounded p-1 w-20 text-sm">
+                                    <button onclick="updateGoalProgress('${docSnap.id}', ${data.valorAtual})" class="bg-green-500 text-white px-3 py-1 rounded text-sm font-bold shadow hover:bg-green-600">Investir</button>
                                 </div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                 });
             });
         }
 
+        window.updateGoalProgress = async function(id, valorAtual) {
+            const add = parseFloat(document.getElementById(`add-val-${id}`).value);
+            if(!isNaN(add) && add > 0) await updateDoc(doc(db, `users/${currentUser.uid}/goals`, id), { valorAtual: valorAtual + add });
+        };
+
+        window.deleteGoal = async function(id) { if(confirm("Excluir meta?")) await deleteDoc(doc(db, `users/${currentUser.uid}/goals`, id)); };
+
         function renderCharts() {
             if(document.getElementById('tab-relatorios').classList.contains('hidden')) return;
-
-            let totalRec = 0; let totalDes = 0;
-            let labelsBarra = []; let dadosBarra = [];
-
+            let rec = 0, des = 0, labels = [], dados = [];
             transacoesGlobais.slice(0, 5).reverse().forEach(t => {
-                if(t.tipo === 'receita') totalRec += t.valor;
-                if(t.tipo === 'despesa') totalDes += t.valor;
-                labelsBarra.push(t.descricao.substring(0, 10));
-                dadosBarra.push(t.tipo === 'receita' ? t.valor : -t.valor);
+                if(t.tipo === 'receita') rec += t.valor; else des += t.valor;
+                labels.push(t.descricao.substring(0, 10));
+                dados.push(t.tipo === 'receita' ? t.valor : -t.valor);
             });
 
-            const ctxPie = document.getElementById('pieChart').getContext('2d');
             if(pieChartInstance) pieChartInstance.destroy();
-            pieChartInstance = new Chart(ctxPie, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Receitas', 'Despesas'],
-                    datasets: [{
-                        data: [totalRec, totalDes],
-                        backgroundColor: ['#22c55e', '#ef4444']
-                    }]
-                }
+            pieChartInstance = new Chart(document.getElementById('pieChart').getContext('2d'), {
+                type: 'doughnut', data: { labels: ['Receitas', 'Despesas'], datasets: [{ data: [rec, des], backgroundColor: ['#22c55e', '#ef4444'] }] }
             });
 
-            const ctxBar = document.getElementById('barChart').getContext('2d');
             if(barChartInstance) barChartInstance.destroy();
-            barChartInstance = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: labelsBarra,
-                    datasets: [{
-                        label: 'Fluxo Recente (R$)',
-                        data: dadosBarra,
-                        backgroundColor: dadosBarra.map(v => v >= 0 ? '#22c55e' : '#ef4444')
-                    }]
-                }
+            barChartInstance = new Chart(document.getElementById('barChart').getContext('2d'), {
+                type: 'bar', data: { labels: labels, datasets: [{ label: 'Fluxo (R$)', data: dados, backgroundColor: dados.map(v => v >= 0 ? '#22c55e' : '#ef4444') }] }
             });
         }
 
+        const academyContents = {
+            1: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 1: O Raio-X Financeiro e os Gastos Invisíveis</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O maior erro de quem vive no aperto não é ganhar pouco, é <strong>não saber para onde o dinheiro está indo</strong>.</p><p>Sabe aquele cafezinho todo dia? O Uber que você pede com preguiça de caminhar 2 quarteirões? Juntos, formam um buraco no seu navio financeiro.</p><div class="bg-blue-50 border-l-4 border-blue-500 p-5 my-6"><h4 class="font-bold text-blue-800 mb-2">A Inflação do Estilo de Vida</h4><p class="text-base text-blue-900">À medida que você ganha mais, gasta mais. Se não tiver um Raio-X, ganhar mais apenas o tornará um "pobre premium".</p></div></div>`,
+            2: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 2: A Regra 50/30/20</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6"><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-red-500 mb-2">50% Necessidades</h4><p class="text-sm text-gray-600">Aluguel, supermercado, energia. O custo da sua sobrevivência.</p></div><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-yellow-500 mb-2">30% Desejos</h4><p class="text-sm text-gray-600">Aqui entram o iFood, o restaurante, o lazer.</p></div><div class="border p-5 rounded bg-white"><h4 class="font-black text-xl text-green-500 mb-2">20% O Seu Futuro</h4><p class="text-sm text-gray-600">Seu "Pague-se Primeiro" para investir e quitar dívidas.</p></div></div></div>`,
+            3: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 3: Bola de Neve (Dívidas)</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>A estratégia foca nas pequenas vitórias para criar momentum.</p><ul class="list-none space-y-4 my-6"><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">1</span><p>Liste todas as dívidas em ordem de valor total.</p></li><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">2</span><p>Pague o MÍNIMO das grandes e ataque a menor dívida com força total.</p></li><li class="flex items-start"><span class="bg-blue-600 text-white font-bold rounded-full px-3 py-1 mr-4 shrink-0">3</span><p>Quando a primeira for quitada, some o valor pago ao pagamento da segunda. Efeito avalanche.</p></li></ul></div>`,
+            4: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 4: O Escudo Financeiro</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><div class="bg-gray-100 p-6 rounded my-4"><h4 class="font-bold text-gray-800 mb-2">Qual o tamanho ideal?</h4><ul class="list-disc pl-5 text-base"><li><strong>CLT:</strong> 6 meses do seu custo de vida.</li><li><strong>Autônomo/Motorista:</strong> 9 a 12 meses, pois a renda flutua.</li></ul></div><p>O lugar do seu Escudo é no Tesouro Selic ou em um CDB de Liquidez Diária.</p></div>`,
+            5: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 5: Dominando o Cartão</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O cartão não é seu inimigo; a sua falta de controle é. Nunca compre no crédito se não tiver o dinheiro na conta.</p></div>`,
+            6: `<h2 class="text-3xl font-extrabold text-blue-900 mb-6">Módulo 6: Juros Compostos</h2><div class="space-y-5 text-gray-700 text-lg leading-relaxed"><p>O tempo é o ingrediente secreto. O melhor dia para investir foi há 10 anos, o segundo melhor é hoje.</p></div>`
+        };
+
+        window.changeAcademyModule = function(id) {
+            document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
+            document.getElementById(`mod-btn-${id}`).classList.add('active', 'bg-blue-600', 'text-white');
+            document.getElementById('module-content').innerHTML = academyContents[id];
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
+            updateCategorias();
             changeAcademyModule(1);
         });
     </script>
