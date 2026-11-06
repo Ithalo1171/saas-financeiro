@@ -11,10 +11,83 @@
     <!-- Ícones (FontAwesome) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <link rel="stylesheet" href="/css/themes.css">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="theme-color" content="#2563eb">
     <style>
         .module-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         .module-btn { transition: all 0.2s ease-in-out; }
         .cat-badge { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; }
+
+        /* Academia Financeira */
+        .academy-page { padding-bottom: 1.5rem; }
+        .academy-heading { display:flex; align-items:flex-end; justify-content:space-between; gap:1.5rem; flex-wrap:wrap; }
+        .academy-kicker { color:#2563eb; font-size:.72rem; font-weight:800; letter-spacing:.13em; }
+        .academy-summary { width:min(100%, 310px); padding:1rem 1.1rem; background:#fff; border:1px solid #e5e7eb; border-radius:16px; box-shadow:0 5px 18px rgba(15,23,42,.04); }
+        .academy-progress-track { height:9px; background:#e5e7eb; border-radius:999px; overflow:hidden; }
+        .academy-progress-fill { height:100%; background:linear-gradient(90deg,#2563eb,#60a5fa); border-radius:999px; transition:width .3s ease; }
+        .academy-count { font-size:.65rem; font-weight:800; letter-spacing:.1em; color:#64748b; background:#f1f5f9; padding:5px 8px; border-radius:7px; }
+        .academy-layout { display:grid; grid-template-columns:minmax(260px, 330px) minmax(0,1fr); gap:1.25rem; align-items:stretch; }
+        .academy-sidebar,.academy-reader { background:#fff; border:1px solid #e5e7eb; border-radius:18px; box-shadow:0 6px 22px rgba(15,23,42,.045); }
+        .academy-sidebar { padding:1.1rem; align-self:start; }
+        .module-btn { display:flex; align-items:center; gap:.8rem; width:100%; padding:.85rem .75rem; border:1px solid transparent; border-radius:12px; text-align:left; color:#475569; background:transparent; transition:all .18s ease; }
+        .module-btn:hover { background:#f8fafc; border-color:#e2e8f0; transform:translateX(2px); }
+        .module-btn.active { background:#eff6ff; border-color:#bfdbfe; color:#1d4ed8; }
+        .module-number { display:grid; place-items:center; flex:0 0 38px; height:38px; border-radius:11px; background:#f1f5f9; color:#64748b; font-size:.75rem; font-weight:800; }
+        .module-btn.active .module-number { background:#2563eb; color:white; }
+        .module-label { display:flex; flex-direction:column; gap:3px; min-width:0; flex:1; }
+        .module-label strong { font-size:.86rem; line-height:1.25; }
+        .module-label small { color:#94a3b8; font-size:.72rem; }
+        .module-status { color:#cbd5e1; font-size:.7rem; }
+        .module-btn.completed .module-status { color:#16a34a; }
+        .module-btn.completed .module-status:before { content:"\f058"; }
+        .academy-sidebar-note { display:flex; gap:.7rem; padding:.9rem; border-radius:12px; background:#f8fafc; color:#64748b; font-size:.76rem; line-height:1.5; }
+        .academy-sidebar-note i { color:#eab308; margin-top:2px; }
+        .academy-reader { min-width:0; overflow:hidden; display:flex; flex-direction:column; }
+        .academy-reader-top { display:flex; justify-content:space-between; gap:1rem; padding:1rem 1.5rem; border-bottom:1px solid #e5e7eb; color:#94a3b8; font-size:.68rem; font-weight:800; letter-spacing:.08em; }
+        .academy-article { padding:clamp(1.25rem,3vw,2.5rem); min-height:420px; }
+        .academy-article h2 { color:#1e3a8a; font-size:clamp(1.45rem,2.5vw,2rem); line-height:1.2; margin-bottom:1.4rem; }
+        .academy-article p { margin-bottom:1rem; }
+        .academy-article ul,.academy-article ol { margin:1rem 0 1.25rem; }
+        .academy-article li { padding-left:.15rem; }
+        .academy-article strong { color:#1e293b; }
+        .academy-reader-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:.7rem; padding:1rem 1.5rem; border-top:1px solid #e5e7eb; background:#fafafa; }
+        .academy-nav-btn,.academy-complete-btn { padding:.7rem 1rem; border-radius:10px; font-size:.82rem; font-weight:700; transition:all .2s; }
+        .academy-nav-btn { border:1px solid #e2e8f0; color:#475569; background:white; }
+        .academy-nav-btn:hover:not(:disabled) { background:#f1f5f9; }
+        .academy-nav-btn:disabled { opacity:.4; cursor:not-allowed; }
+        .academy-next-btn,.academy-complete-btn { background:#2563eb; color:white; border:1px solid #2563eb; }
+        .academy-next-btn:hover,.academy-complete-btn:hover { background:#1d4ed8; }
+        .academy-complete-btn.is-complete { background:#ecfdf5; color:#15803d; border-color:#bbf7d0; }
+        @media(max-width:850px) { .academy-layout { grid-template-columns:1fr; } .academy-sidebar { order:2; } .academy-reader { order:1; } .academy-sidebar #academy-module-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        @media(max-width:520px) { .academy-sidebar #academy-module-list { grid-template-columns:1fr; } .academy-reader-footer { align-items:stretch; } .academy-reader-footer button { flex:1 1 100%; } .academy-reader-top { padding:.85rem 1rem; } }
+
+        /* Tema escuro: aplicado ao painel inteiro e mantido entre acessos. */
+        html.dark body { background:#0b1220 !important; color:#e5e7eb !important; }
+        html.dark #dashboard-screen main { background:#0b1220 !important; }
+        html.dark .bg-white, html.dark .academy-summary, html.dark .academy-sidebar, html.dark .academy-reader { background:#111c2e !important; color:#e5e7eb !important; border-color:#263449 !important; }
+        html.dark .bg-gray-50, html.dark .bg-gray-100 { background:#172338 !important; }
+        html.dark .text-gray-800, html.dark .text-gray-700, html.dark .text-gray-600, html.dark .text-gray-500, html.dark .text-gray-400 { color:#cbd5e1 !important; }
+        html.dark .border, html.dark .border-b, html.dark .border-t, html.dark .border-gray-300 { border-color:#334155 !important; }
+        html.dark input, html.dark select, html.dark textarea { background:#0f172a !important; color:#e5e7eb !important; border-color:#475569 !important; }
+        html.dark input::placeholder { color:#94a3b8 !important; }
+        html.dark table thead { background:#172338 !important; }
+        html.dark tbody tr { border-color:#263449 !important; }
+        html.dark .academy-article h2, html.dark .academy-article strong { color:#bfdbfe !important; }
+        html.dark .academy-reader-top, html.dark .academy-reader-footer { background:#0f1929 !important; border-color:#263449 !important; }
+        html.dark .academy-sidebar-note { background:#172338 !important; color:#cbd5e1 !important; }
+        html.dark .academy-count { background:#263449 !important; color:#cbd5e1 !important; }
+        html.dark .module-btn { color:#cbd5e1; }
+        html.dark .module-btn:hover { background:#1e293b; border-color:#334155; }
+        html.dark .module-btn.active { background:#172b4d; border-color:#315b94; color:#bfdbfe; }
+        html.dark .module-number { background:#263449; color:#cbd5e1; }
+        html.dark .module-btn.active .module-number { background:#2563eb; color:white; }
+        html.dark .academy-nav-btn { background:#172338; color:#e2e8f0; border-color:#334155; }
+        html.dark .academy-complete-btn.is-complete { background:#123326; color:#86efac; border-color:#166534; }
+        html.dark .theme-toggle { background:#172338 !important; color:#e2e8f0 !important; border-color:#334155 !important; }
+        html.dark .cat-badge.bg-gray-200 { background:#334155 !important; color:#e2e8f0 !important; }
+        html.dark .divide-y > :not([hidden]) ~ :not([hidden]) { border-color:#334155 !important; }
+
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
@@ -40,6 +113,7 @@
                     <button type="button" onclick="registerUser()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">Criar Nova Conta</button>
                 </div>
             </form>
+            <button id="sf-reset" class="text-sm text-blue-500 mt-4 underline" type="button">Esqueci minha senha</button>
         </div>
     </div>
 
@@ -59,8 +133,18 @@
                     <li><button onclick="switchTab('relatorios')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-chart-pie w-6"></i> Análise e Relatórios</button></li>
                     <li><button onclick="switchTab('metas')" class="w-full text-left p-3 rounded-lg hover:bg-gray-800 focus:bg-gray-800"><i class="fas fa-bullseye w-6"></i> Metas</button></li>
                     <li><button onclick="switchTab('academia')" class="w-full text-left p-3 rounded-lg bg-blue-600 bg-opacity-20 text-blue-400 font-semibold hover:bg-blue-600 hover:text-white"><i class="fas fa-graduation-cap w-6"></i> Academia</button></li>
+                    <li><button data-sf-tab="orcamentos" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-wallet w-6"></i> Orçamentos</button></li>
+                    <li><button data-sf-tab="cartoes" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-credit-card w-6"></i> Cartões</button></li>
+                    <li><button data-sf-tab="recorrencias" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-calendar w-6"></i> Recorrências</button></li>
+                    <li><button data-sf-tab="notificacoes" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-bell w-6"></i> Notificações</button></li>
+                    <li><button data-sf-tab="avaliacoes" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-award w-6"></i> Avaliações</button></li>
+                    <li id="sf-admin-link" hidden><button data-sf-tab="administracao" class="w-full text-left p-3 rounded-lg hover:bg-gray-800"><i class="fas fa-user-shield w-6"></i> Administração</button></li>
                 </ul>
             </nav>
+            <div class="p-4 border-t border-gray-700">
+                <label for="sf-theme" class="block text-xs text-gray-300 mb-2">Aparência</label>
+                <select id="sf-theme" class="w-full rounded p-2 text-gray-900"><option value="auto">Automático</option><option value="light">Claro</option><option value="dark">Escuro</option></select>
+            </div>
             <div class="p-4 border-t border-gray-700">
                 <button onclick="logoutUser()" class="w-full text-left p-3 text-red-400 hover:bg-red-500 hover:text-white rounded-lg transition"><i class="fas fa-sign-out-alt w-6"></i> Sair</button>
             </div>
@@ -187,30 +271,85 @@
             </section>
 
             <!-- ABA: ACADEMIA -->
-            <section id="tab-academia" class="tab-content hidden h-full">
-                <div class="flex flex-col md:flex-row gap-6 h-full min-h-[600px]">
-                    <div class="w-full md:w-1/3 bg-white rounded-xl shadow-sm p-4 overflow-y-auto">
-                        <h3 class="text-xl font-bold mb-4 text-gray-800 border-b pb-2">Módulos do Curso</h3>
-                        <div class="flex flex-col gap-2">
-                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn active text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 1: O Raio-X Financeiro</button>
-                            <button onclick="changeAcademyModule(2)" id="mod-btn-2" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 2: A Regra 50/30/20</button>
-                            <button onclick="changeAcademyModule(3)" id="mod-btn-3" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 3: Bola de Neve (Dívidas)</button>
-                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 4: O Escudo Financeiro</button>
-                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 5: Dominando o Cartão</button>
-                            <button onclick="changeAcademyModule(6)" id="mod-btn-6" class="module-btn text-left p-3 border rounded-lg font-semibold text-gray-700">Módulo 6: Juros Compostos</button>
-                        </div>
+            <section id="tab-academia" class="tab-content hidden academy-page">
+                <div class="academy-heading mb-6">
+                    <div>
+                        <span class="academy-kicker"><i class="fas fa-graduation-cap"></i> SMARTFIN • APRENDIZADO</span>
+                        <h2 class="text-3xl font-extrabold mt-2">Academia Financeira</h2>
+                        <p class="text-gray-500 mt-2">Aprenda a cuidar do seu dinheiro, um passo de cada vez.</p>
                     </div>
-                    <div class="w-full md:w-2/3 bg-white rounded-xl shadow-sm p-6 md:p-8 overflow-y-auto relative">
-                        <div id="module-content"></div>
+                    <div class="academy-summary">
+                        <div class="flex items-center justify-between gap-3">
+                            <span class="text-sm font-semibold">Seu progresso</span>
+                            <strong id="academy-progress-label">0 de 6 módulos</strong>
+                        </div>
+                        <div class="academy-progress-track mt-3"><div id="academy-progress-bar" class="academy-progress-fill" style="width:0%"></div></div>
+                        <p id="academy-progress-caption" class="text-xs text-gray-500 mt-2">Comece pelo primeiro módulo.</p>
+                    </div>
+                </div>
+
+                <div class="academy-layout">
+                    <aside class="academy-sidebar">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="font-bold text-lg">Trilha de aprendizagem</h3>
+                            <span class="academy-count">06 AULAS</span>
+                        </div>
+                        <div class="flex flex-col gap-2" id="academy-module-list">
+                            <button onclick="changeAcademyModule(1)" id="mod-btn-1" class="module-btn" aria-current="step">
+                                <span class="module-number">01</span><span class="module-label"><strong>O Raio-X Financeiro</strong><small>Conheça seus hábitos</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                            <button onclick="changeAcademyModule(2)" id="mod-btn-2" class="module-btn">
+                                <span class="module-number">02</span><span class="module-label"><strong>A Regra 50/30/20</strong><small>Organize sua renda</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                            <button onclick="changeAcademyModule(3)" id="mod-btn-3" class="module-btn">
+                                <span class="module-number">03</span><span class="module-label"><strong>Bola de Neve</strong><small>Planeje a saída das dívidas</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                            <button onclick="changeAcademyModule(4)" id="mod-btn-4" class="module-btn">
+                                <span class="module-number">04</span><span class="module-label"><strong>O Escudo Financeiro</strong><small>Monte sua reserva</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                            <button onclick="changeAcademyModule(5)" id="mod-btn-5" class="module-btn">
+                                <span class="module-number">05</span><span class="module-label"><strong>Dominando o Cartão</strong><small>Use o crédito com consciência</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                            <button onclick="changeAcademyModule(6)" id="mod-btn-6" class="module-btn">
+                                <span class="module-number">06</span><span class="module-label"><strong>Juros Compostos</strong><small>Entenda o efeito do tempo</small></span><i class="module-status fas fa-circle"></i>
+                            </button>
+                        </div>
+                        <div class="academy-sidebar-note mt-5">
+                            <i class="fas fa-lightbulb"></i>
+                            <p><strong>Dica:</strong> avance no seu ritmo. Você pode revisitar qualquer aula quando quiser.</p>
+                        </div>
+                    </aside>
+
+                    <div class="academy-reader">
+                        <div class="academy-reader-top">
+                            <span id="academy-current-tag">MÓDULO 01 / 06</span>
+                            <span><i class="fas fa-clock mr-1"></i> Leitura rápida</span>
+                        </div>
+                        <div id="module-content" class="academy-article"></div>
+                        <div class="academy-reader-footer">
+                            <button id="academy-prev" onclick="navigateAcademy(-1)" class="academy-nav-btn" disabled><i class="fas fa-arrow-left mr-2"></i>Anterior</button>
+                            <button id="academy-complete" onclick="toggleAcademyComplete()" class="academy-complete-btn"><i class="far fa-circle mr-2"></i>Marcar como concluído</button>
+                            <button id="academy-next" onclick="navigateAcademy(1)" class="academy-nav-btn academy-next-btn">Próximo módulo<i class="fas fa-arrow-right ml-2"></i></button>
+                        </div>
                     </div>
                 </div>
             </section>
 
+
+<section id="tab-orcamentos" class="tab-content hidden"><h2 class="sf-title">Orçamento por categoria</h2><div class="sf-panel"><form data-sf-form="budget" class="sf-grid"><select name="categoria" class="sf-input" required><option>Alimentação</option><option>Transporte</option><option>Moradia</option><option>Saúde</option><option>Lazer</option><option>Emergência</option><option>Outros</option></select><input class="sf-input" type="number" name="limite" step="0.01" min="0.01" placeholder="Limite mensal (R$)" required><button class="sf-btn">Adicionar orçamento</button></form></div><div id="sf-budgets" class="sf-grid"></div></section>
+<section id="tab-cartoes" class="tab-content hidden"><h2 class="sf-title">Cartões e compras parceladas</h2><div class="sf-panel"><h3 class="font-bold mb-3">Cadastrar cartão</h3><form data-sf-form="card" class="sf-grid"><input class="sf-input" name="nome" placeholder="Nome do cartão" required><input class="sf-input" type="number" name="limite" min="0" step="0.01" placeholder="Limite (R$)" required><input class="sf-input" type="number" name="fechamento" min="1" max="28" placeholder="Dia fechamento (1–28)" required><input class="sf-input" type="number" name="vencimento" min="1" max="28" placeholder="Dia vencimento (1–28)" required><button class="sf-btn">Salvar cartão</button></form></div><div id="sf-cards" class="sf-grid"></div><div class="sf-panel mt-4"><h3 class="font-bold mb-3">Registrar compra parcelada</h3><form data-sf-form="installment" class="sf-grid"><select id="sf-installment-card" class="sf-input" name="cartao" required></select><input class="sf-input" name="descricao" placeholder="Descrição da compra" required><input class="sf-input" name="categoria" placeholder="Categoria" value="Outros" required><input class="sf-input" type="number" name="valor" min="0.01" step="0.01" placeholder="Valor total" required><input class="sf-input" type="number" name="parcelas" min="1" max="48" placeholder="Número de parcelas" required><label class="sf-small">Primeira parcela<input class="sf-input" type="date" name="primeira" required></label><button class="sf-btn">Registrar parcelas</button></form></div></section>
+<section id="tab-recorrencias" class="tab-content hidden"><h2 class="sf-title">Lançamentos recorrentes</h2><div class="sf-panel"><p class="sf-muted sf-small mb-3">Cadastre modelos e clique em “Lançar agora” quando o pagamento ou recebimento ocorrer.</p><form data-sf-form="recurring" class="sf-grid"><input class="sf-input" name="descricao" placeholder="Descrição" required><input class="sf-input" type="number" name="valor" step="0.01" min="0.01" placeholder="Valor" required><select class="sf-input" name="tipo"><option value="despesa">Despesa</option><option value="receita">Receita</option></select><input class="sf-input" name="categoria" placeholder="Categoria" value="Outros" required><select class="sf-input" name="frequencia"><option value="mensal">Mensal</option><option value="semanal">Semanal</option><option value="anual">Anual</option></select><label class="sf-small">Próximo vencimento<input class="sf-input" name="proxima" type="date" required></label><button class="sf-btn">Salvar recorrência</button></form></div><div id="sf-recurring" class="sf-grid"></div></section>
+<section id="tab-notificacoes" class="tab-content hidden"><h2 class="sf-title">Central de notificações</h2><p class="sf-muted mb-4">Alertas de orçamento aparecem na aba Orçamentos. Avisos cadastrados no Firebase são exibidos abaixo.</p><div id="sf-alerts"></div></section>
+<section id="tab-avaliacoes" class="tab-content hidden"><h2 class="sf-title">Avaliações e certificados</h2><div id="sf-quizzes"></div></section>
+<section id="tab-administracao" class="tab-content hidden"><h2 class="sf-title">Administração</h2><div class="sf-panel"><p class="sf-muted mb-4">Autorize ou revogue e-mails. Operações exigem permissão administrativa no Firebase.</p><div class="sf-row"><input class="sf-input" id="sf-admin-email" type="email" placeholder="E-mail a autorizar"><button class="sf-btn" data-action="admin-allow">Autorizar e-mail</button></div></div><div id="sf-admin-users" class="sf-grid"></div></section>
+<section id="sf-export" class="sf-panel mt-6"><h3 class="font-bold mb-3">Exportar dados</h3><div class="sf-row"><button class="sf-btn" data-action="export-csv">Exportar transações (CSV / Excel)</button><button class="sf-btn" data-action="export-pdf">Imprimir / salvar PDF</button></div></section>
         </main>
     </div>
 
+    <div id="sf-message" hidden role="status" aria-live="polite" class="fixed top-4 right-4 bg-blue-700 text-white p-4 rounded-xl shadow-xl z-50"></div>
     <!-- SCRIPT FIREBASE E LÓGICA DO APP -->
     <script type="module">
+        import {initFeatures,syncTransactions} from "/js/features.js";
         import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
         import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
@@ -228,6 +367,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        initFeatures();
 
         let currentUser = null;
         let pieChartInstance = null;
@@ -298,6 +438,7 @@
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             if(tabId === 'relatorios') renderCharts();
+            if(tabId === 'administracao' && document.getElementById('sf-admin-link').hidden) { document.getElementById('tab-administracao').classList.add('hidden'); document.getElementById('tab-visao-geral').classList.remove('hidden'); }
         };
 
         window.addTransaction = async function(e) {
@@ -328,6 +469,7 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
                 document.getElementById('user-email-display').innerText = user.email;
+                loadAcademyProgress();
                 updateStreak(user);
                 loadTransactions(user);
                 loadGoals(user);
@@ -366,17 +508,19 @@
                     const sinal = data.tipo === 'receita' ? '+' : '-';
                     const catBg = data.tipo === 'receita' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-700';
 
+                    const esc = value => String(value ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
                     tbody.innerHTML += `
                         <tr>
                             <td class="p-4 text-sm text-gray-600">${dataFormatada}</td>
-                            <td class="p-4 font-medium">${data.descricao}</td>
-                            <td class="p-4"><span class="cat-badge ${catBg}">${data.categoria || 'Geral'}</span></td>
+                            <td class="p-4 font-medium">${esc(data.descricao)}</td>
+                            <td class="p-4"><span class="cat-badge ${catBg}">${esc(data.categoria || 'Geral')}</span></td>
                             <td class="p-4 font-bold ${corValor}">${sinal} R$ ${data.valor.toFixed(2)}</td>
                             <td class="p-4 text-sm text-red-500 cursor-pointer" onclick="deleteTransaction('${docSnap.id}')">Excluir</td>
                         </tr>
                     `;
                 });
 
+                syncTransactions(transacoesGlobais);
                 document.getElementById('card-receitas').innerText = `R$ ${totalReceitas.toFixed(2)}`;
                 document.getElementById('card-despesas').innerText = `R$ ${totalDespesas.toFixed(2)}`;
                 document.getElementById('card-saldo').innerText = `R$ ${(totalReceitas - totalDespesas).toFixed(2)}`;
@@ -638,15 +782,118 @@
             `
         };
 
+        let currentAcademyModule = 1;
+        let completedAcademyModules = [];
+
+        function academyProgressKey() {
+            return `smartfin-academy-${currentUser ? currentUser.uid : 'guest'}`;
+        }
+
+        function loadAcademyProgress() {
+            try {
+                completedAcademyModules = JSON.parse(localStorage.getItem(academyProgressKey()) || '[]');
+                if (!Array.isArray(completedAcademyModules)) completedAcademyModules = [];
+            } catch (_) { completedAcademyModules = []; }
+            renderAcademyProgress();
+        }
+
+        function saveAcademyProgress() {
+            localStorage.setItem(academyProgressKey(), JSON.stringify(completedAcademyModules));
+            renderAcademyProgress();
+        }
+
+        function renderAcademyProgress() {
+            const total = 6;
+            const done = completedAcademyModules.length;
+            const percent = Math.round((done / total) * 100);
+            const bar = document.getElementById('academy-progress-bar');
+            if (!bar) return;
+            bar.style.width = `${percent}%`;
+            document.getElementById('academy-progress-label').textContent = `${done} de ${total} módulos`;
+            document.getElementById('academy-progress-caption').textContent =
+                done === total ? 'Parabéns! Você concluiu toda a trilha.' :
+                done === 0 ? 'Comece pelo primeiro módulo.' : `${percent}% da trilha concluída. Continue avançando!`;
+
+            for (let i = 1; i <= total; i++) {
+                const btn = document.getElementById(`mod-btn-${i}`);
+                if (!btn) continue;
+                btn.classList.toggle('completed', completedAcademyModules.includes(i));
+                const status = btn.querySelector('.module-status');
+                if (status) status.className = `module-status fas ${completedAcademyModules.includes(i) ? 'fa-check-circle' : 'fa-circle'}`;
+            }
+            updateAcademyControls();
+        }
+
+        function updateAcademyControls() {
+            const prev = document.getElementById('academy-prev');
+            const next = document.getElementById('academy-next');
+            const complete = document.getElementById('academy-complete');
+            if (!prev || !next || !complete) return;
+            prev.disabled = currentAcademyModule === 1;
+            next.disabled = currentAcademyModule === 6;
+            next.style.opacity = currentAcademyModule === 6 ? '.45' : '1';
+            const isDone = completedAcademyModules.includes(currentAcademyModule);
+            complete.classList.toggle('is-complete', isDone);
+            complete.innerHTML = isDone
+                ? '<i class="fas fa-check-circle mr-2"></i>Módulo concluído'
+                : '<i class="far fa-circle mr-2"></i>Marcar como concluído';
+            document.getElementById('academy-current-tag').textContent =
+                `MÓDULO ${String(currentAcademyModule).padStart(2, '0')} / 06`;
+        }
+
+        window.toggleAcademyComplete = function() {
+            if (completedAcademyModules.includes(currentAcademyModule)) {
+                completedAcademyModules = completedAcademyModules.filter(id => id !== currentAcademyModule);
+            } else {
+                completedAcademyModules.push(currentAcademyModule);
+                completedAcademyModules.sort((a,b) => a-b);
+            }
+            saveAcademyProgress();
+        };
+
+        window.navigateAcademy = function(direction) {
+            const nextId = currentAcademyModule + direction;
+            if (nextId >= 1 && nextId <= 6) changeAcademyModule(nextId);
+        };
+
         window.changeAcademyModule = function(id) {
-            document.querySelectorAll('.module-btn').forEach(b => b.classList.remove('active', 'bg-blue-600', 'text-white'));
-            document.getElementById(`mod-btn-${id}`).classList.add('active', 'bg-blue-600', 'text-white');
+            if (!academyContents[id]) return;
+            currentAcademyModule = id;
+            document.querySelectorAll('.module-btn').forEach(b => {
+                b.classList.remove('active');
+                b.removeAttribute('aria-current');
+            });
+            const activeButton = document.getElementById(`mod-btn-${id}`);
+            activeButton.classList.add('active');
+            activeButton.setAttribute('aria-current', 'step');
             document.getElementById('module-content').innerHTML = academyContents[id];
+            updateAcademyControls();
+        };
+
+        function applyTheme(theme) {
+            const isDark = theme === 'dark';
+            document.documentElement.classList.toggle('dark', isDark);
+            const icon = document.getElementById('theme-toggle-icon');
+            const label = document.getElementById('theme-toggle-label');
+            if (icon) icon.className = `fas ${isDark ? 'fa-sun' : 'fa-moon'}`;
+            if (label) label.textContent = isDark ? 'Modo claro' : 'Modo escuro';
+            localStorage.setItem('smartfin-theme', theme);
+        }
+
+        window.toggleTheme = function() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const nextTheme = isDark ? 'light' : 'dark';
+            localStorage.setItem('smartfin-theme-choice', nextTheme);
+            if (document.getElementById('sf-theme')) document.getElementById('sf-theme').value = nextTheme;
+            applyTheme(nextTheme);
         };
 
         document.addEventListener('DOMContentLoaded', () => {
+            const choice = localStorage.getItem('smartfin-theme-choice') || localStorage.getItem('smartfin-theme') || 'auto';
+            applyTheme(choice === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : choice);
             updateCategorias();
             changeAcademyModule(1);
+            loadAcademyProgress();
         });
     </script>
 </body>
