@@ -1,5 +1,5 @@
 import {getApp} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js';
-import {getAuth,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
+import {getAuth,onAuthStateChanged,sendPasswordResetEmail} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js';
 import {getFirestore,collection,doc,addDoc,setDoc,getDoc,deleteDoc,onSnapshot,query,orderBy,serverTimestamp,writeBatch} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js';
 import {getFunctions,httpsCallable} from 'https://www.gstatic.com/firebasejs/13.2.0/firebase-functions.js';
 let auth,db,fn;
@@ -12,12 +12,11 @@ function listen(name,callback){unsubs.push(onSnapshot(path(name),s=>{callback(s.
 export function initFeatures(){
  auth=getAuth(getApp());db=getFirestore(getApp());fn=getFunctions(getApp());
  document.querySelectorAll('[data-sf-tab]').forEach(b=>b.addEventListener('click',()=>window.switchTab(b.dataset.sfTab)));
- $('sf-reset')?.addEventListener('click',async()=>{const email=$('auth-email').value.trim();if(!email)return notify('Informe seu e-mail primeiro.');try{await sendPasswordResetEmail(auth,email);notify('Se o e-mail estiver cadastrado, você receberá instruções para redefinir a senha.')}catch(e){notify('Não foi possível solicitar a redefinição: '+e.message)}});
  $('sf-theme')?.addEventListener('change',e=>{localStorage.setItem('smartfin-theme-choice',e.target.value);setTheme(e.target.value)});
  const pref=localStorage.getItem('smartfin-theme-choice')||localStorage.getItem('smartfin-theme')||'auto';$('sf-theme').value=pref;setTheme(pref);
  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if($('sf-theme').value==='auto')setTheme('auto')});
  document.addEventListener('submit',submit);document.addEventListener('click',click);
- auth.onAuthStateChanged(async u=>{unsubs.forEach(f=>f());unsubs=[];user=u;admin=false;tx=[];goals=[];budgets=[];cards=[];recurrents=[];alerts=[];progress={};if(!u)return;try{const token=await u.getIdTokenResult();admin=token.claims.admin===true;const adminLink=$('sf-admin-link');if(adminLink)adminLink.hidden=!admin;listen('budgets',v=>budgets=v);listen('cards',v=>cards=v);listen('recurrents',v=>recurrents=v);listen('notifications',v=>alerts=v);listen('academyProgress',v=>{progress=Object.fromEntries(v.map(x=>[x.id,x]));});if(admin)loadAdmin();}catch(e){notify('Não foi possível carregar recursos: '+e.message)}});
+ onAuthStateChanged(auth,async u=>{unsubs.forEach(f=>f());unsubs=[];user=u;admin=false;tx=[];goals=[];budgets=[];cards=[];recurrents=[];alerts=[];progress={};const adminLink=$('sf-admin-link');if(adminLink)adminLink.hidden=true;if(!u)return;try{const token=await u.getIdTokenResult();admin=token.claims.admin===true;if(adminLink)adminLink.hidden=!admin;listen('budgets',v=>budgets=v);listen('cards',v=>cards=v);listen('recurrents',v=>recurrents=v);listen('notifications',v=>alerts=v);listen('academyProgress',v=>{progress=Object.fromEntries(v.map(x=>[x.id,x]));});if(admin)loadAdmin();}catch(e){notify('Não foi possível carregar recursos: '+e.message)}});
  if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('/service-worker.js').catch(()=>{});
 }
 function setTheme(v){const dark=v==='dark'||v==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',dark);document.documentElement.style.colorScheme=dark?'dark':'light';const icon=$('theme-toggle-icon'),label=$('theme-toggle-label');if(icon)icon.className='fas '+(dark?'fa-sun':'fa-moon');if(label)label.textContent=dark?'Modo claro':'Modo escuro';if(typeof window.renderCharts==='function')window.renderCharts()}

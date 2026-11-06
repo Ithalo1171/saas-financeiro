@@ -1,31 +1,25 @@
-# SmartFin PRO 2.0 — versão estruturada
+# SmartFin PRO 2.0 — entrada normal restaurada
 
-## O que foi incluído
-- Painéis de orçamentos, cartões, parcelamentos, recorrências, notificações, avaliações da Academia e administração.
-- Tema claro, escuro e automático.
-- Recuperação de senha por e-mail.
-- Exportação CSV (abre no Excel) e impressão/salvar como PDF pelo navegador.
-- PWA básico (manifesto, ícone SVG e service worker para arquivos estáticos).
+## O que mudou
+- **Entrar** autentica diretamente no Firebase Authentication, sem lista de e-mails autorizados.
+- **Criar Nova Conta** cria conta por e-mail e senha (mínimo seis caracteres) e salva o perfil `users/{uid}`.
+- **Esqueci minha senha** funciona sem depender do módulo extra `features.js`.
+- Os três botões apresentam status e erros de rede, configuração ou credenciais na própria tela. Mesmo se o SDK falhar ao carregar, há uma mensagem visível em vez de clique silencioso.
+- Novas regras do Firestore permitem perfis novos e dados privados do próprio usuário, **sem liberar dados de terceiros**.
+- Dashboard, transações, metas, relatórios, Academia Financeira, opções de aparência, cartões, orçamentos, notificações, avaliações e recursos PWA foram preservados.
 
 ## Publicar na Vercel
-Envie o conteúdo desta pasta para a raiz do projeto estático na Vercel. `index.html` é a entrada; `css`, `js`, `icons`, `manifest.webmanifest` e `service-worker.js` precisam manter os caminhos.
+1. Faça backup do código e das **regras do Firebase** atuais.
+2. Suba para o GitHub os arquivos **dentro da pasta** deste ZIP; o `index.html` deve ficar na raiz do repositório. A Vercel irá publicar normalmente.
+3. Abra Firebase Console → **Firestore Database → Rules**, e publique o conteúdo de `firestore.rules` **se esse projeto Firebase for usado apenas pelo SmartFin**. Se outras aplicações usam `usuarios-compradores`, revise antes de substituir as regras.
+4. Confira em Firebase Console → **Authentication → Sign-in method** que **E-mail/Senha** está ativado.
+5. Teste primeiro em uma implantação Preview, com uma conta antiga e uma conta nova. **Não recrie contas existentes**, apenas faça login.
+6. No Chrome, se houver versão antiga salva: recarregue com Ctrl+Shift+R. Se continuar, em DevTools → Application → Service Workers, clique em Unregister e limpe o cache do site antes de recarregar.
 
-## ATENÇÃO — Firebase
-Este pacote inclui `firestore.rules` e uma função protegida em `functions/`. **Não publique as regras sem revisar a compatibilidade com seus dados atuais.** As regras substituem as regras existentes e podem bloquear usuários não autorizados.
-
-Para habilitar administração real, um operador com acesso ao console Firebase deve:
-1. Definir uma custom claim `admin:true` para o UID da conta `ithalo1171@gmail.com` via Admin SDK em ambiente seguro, e renovar a sessão.
-2. Implantar a função `manageAuthorizedEmail` pelo Firebase CLI e aplicar as regras após avaliação.
-3. Criar a autorização inicial em `authorizedEmails/ithalo1171@gmail.com` com `{ "allowed": true }`, ou depender da claim admin.
-4. Configurar no Firebase Authentication o domínio da Vercel como domínio autorizado para autenticação e recuperação de senha, conforme a configuração atual do projeto.
-
-**Importante:** as regras fornecidas restringem acesso ao Firestore, mas não impedem que um usuário crie uma identidade no Firebase Authentication. Para bloquear cadastros não convidados no próprio Auth é necessário um fluxo backend específico (ou Identity Platform blocking functions). A interface não equivale a segurança.
-
-## Observações
-- Recorrências são modelos com lançamento manual para evitar cobranças duplicadas; execução automática exige agendador de backend.
-- Compras parceladas geram lançamentos futuros; a visão geral legada soma todos os lançamentos, inclusive futuros. A contabilidade mensal dos orçamentos filtra o mês atual. Recomenda-se revisar a lógica de saldos por competência antes de uso financeiro real.
-- Notificações são lidas do Firestore; alertas de orçamento aparecem na tela de orçamento. Envio push e criação automática de notificações requerem backend.
-- Certificado é gerado para impressão em PDF e não possui verificação externa.
-- PWA depende de HTTPS; cache não fornece acesso offline aos dados financeiros.
-- A Academia original armazena conclusão de leitura no localStorage; as notas dos quizzes ficam no Firestore.
-- Este código não foi testado contra o seu projeto Firebase de produção; faça backup e teste em ambiente de homologação antes de substituir a versão ativa.
+## Importante
+- O cadastro no **Firebase Authentication** é independente das regras do Firestore. Se as regras antigas ainda estiverem publicadas, usuários podem fazer login/criar Auth, mas não salvar ou acessar dados. Atualizar o GitHub não altera as regras no Firebase.
+- O administrador ainda exige a claim `admin: true`, configurada pelo backend. **Não foi concedido acesso administrativo apenas por e-mail**, para evitar uma falha de segurança.
+- A nova regra permite que qualquer conta autenticada crie o próprio perfil, conforme solicitado. A lista `authorizedEmails` permanece apenas para uma futura política de convites, sem bloquear login nem cadastro.
+- Esta atualização não exclui contas nem altera documentos financeiros existentes.
+- O HTML pressupõe conexão para carregar SDK do Firebase via CDN. Se scripts externos forem bloqueados, o erro aparece na tela.
+- **Não foi possível testar o Firebase real sem acesso às credenciais da conta.** Foram feitas checagens de sintaxe, estrutura e validação das chamadas no código.

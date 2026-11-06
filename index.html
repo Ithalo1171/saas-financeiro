@@ -15,6 +15,9 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#2563eb">
     <style>
+        [hidden] { display: none !important; }
+        #sf-auth-status:not([hidden]) { display: block; }
+
         .module-btn.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
         .module-btn { transition: all 0.2s ease-in-out; }
         .cat-badge { padding: 2px 8px; border-radius: 999px; font-size: 0.7rem; font-weight: bold; }
@@ -99,7 +102,7 @@
                 <h1 class="text-3xl font-bold text-blue-600"><i class="fas fa-chart-line"></i> SmartFin</h1>
                 <p class="text-gray-500 mt-2">Acesse seu painel financeiro PRO</p>
             </div>
-            <form id="auth-form" onsubmit="event.preventDefault();">
+            <form id="auth-form" onsubmit="event.preventDefault(); loginUser();">
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">E-mail</label>
                     <input type="email" id="auth-email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
@@ -109,11 +112,12 @@
                     <input type="password" id="auth-password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" required>
                 </div>
                 <div class="flex flex-col gap-3">
-                    <button type="button" onclick="loginUser()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition">Entrar na Plataforma</button>
-                    <button type="button" onclick="registerUser()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">Criar Nova Conta</button>
+                    <button type="button" id="sf-login-button" onclick="loginUser()" class="w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg hover:bg-blue-700 transition">Entrar na Plataforma</button>
+                    <button type="button" id="sf-register-button" onclick="registerUser()" class="w-full bg-gray-100 text-gray-700 font-bold py-3 px-4 rounded-lg hover:bg-gray-200 transition border border-gray-300">Criar Nova Conta</button>
                 </div>
             </form>
-            <button id="sf-reset" class="text-sm text-blue-500 mt-4 underline" type="button">Esqueci minha senha</button>
+            <button id="sf-reset" onclick="resetPassword()" class="text-sm text-blue-500 mt-4 underline" type="button">Esqueci minha senha</button>
+            <p id="sf-auth-status" role="alert" aria-live="polite" hidden class="mt-4 p-3 rounded-lg bg-red-50 text-red-800 text-sm"></p>
         </div>
     </div>
 
@@ -160,6 +164,7 @@
 
         <!-- Conteúdo Principal -->
         <main class="flex-1 p-4 md:p-8 bg-gray-50 h-screen overflow-y-auto pb-24 md:pb-8">
+            <div id="sf-access-warning" role="alert" aria-live="polite" hidden class="mb-5 rounded-xl border border-red-300 bg-red-50 text-red-900 p-4 text-sm"></div>
             
             <!-- ABA: VISÃO GERAL -->
             <section id="tab-visao-geral" class="tab-content block">
@@ -347,12 +352,52 @@
     </div>
 
     <div id="sf-message" hidden role="status" aria-live="polite" class="fixed top-4 right-4 bg-blue-700 text-white p-4 rounded-xl shadow-xl z-50"></div>
+    <!-- Inicialização independente: os botões nunca ficam sem resposta. -->
+    <script>
+      (function () {
+        const status = (message) => {
+          const box = document.getElementById('sf-auth-status');
+          if (box) {
+            if (box.textContent.startsWith('Erro ao carregar o Firebase')) return;
+            box.textContent = message; box.hidden = false;
+          }
+        };
+        window.loginUser = function () {
+          status('Conectando ao serviço de autenticação. Se continuar assim, atualize a página e verifique sua conexão.');
+        };
+        window.registerUser = function () {
+          status('O cadastro está carregando. Se continuar assim, atualize a página e verifique sua conexão.');
+        };
+        window.resetPassword = function () {
+          status('A recuperação de senha ainda está carregando. Verifique sua conexão e tente novamente.');
+        };
+        window.addEventListener('error', function (event) {
+          if (!window.__smartfinAuthLoaded && /firebase|module script/i.test(String(event.message || '') + ' ' + String(event.target?.src || ''))) {
+            status('Não foi possível iniciar o SmartFin. Recarregue a página (Ctrl+Shift+R). Caso persista, verifique se o navegador bloqueia o Firebase.');
+          }
+        });
+      })();
+    </script>
     <!-- SCRIPT FIREBASE E LÓGICA DO APP -->
     <script type="module">
-        import {initFeatures,syncTransactions} from "/js/features.js";
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/13.2.0/firebase-firestore.js";
+        // Carregamento explícito para mostrar erros se o Firebase for bloqueado.
+        const firebaseSDK = 'https://www.gstatic.com/firebasejs/13.2.0/';
+        const [firebaseAppSdk, firebaseAuthSdk, firebaseStoreSdk] = await Promise.all([
+            import(firebaseSDK + 'firebase-app.js'),
+            import(firebaseSDK + 'firebase-auth.js'),
+            import(firebaseSDK + 'firebase-firestore.js')
+        ]).catch(error => {
+            const box = document.getElementById('sf-auth-status');
+            if (box) {
+                box.textContent = 'Erro ao carregar o Firebase. Verifique a conexão e faça uma atualização forçada (Ctrl+Shift+R). Detalhe: ' + (error?.message || 'falha de rede');
+                box.hidden = false;
+            }
+            console.error('[SmartFin] Não foi possível carregar o SDK do Firebase:', error);
+            throw error;
+        });
+        const {initializeApp} = firebaseAppSdk;
+        const {getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail} = firebaseAuthSdk;
+        const {getFirestore, collection, addDoc, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy} = firebaseStoreSdk;
 
         const firebaseConfig = {
             apiKey: "AIzaSyBoeFJeK1Dq93wSPSvjFJTh4eC1Tan3jzY",
@@ -365,9 +410,48 @@
         };
 
         const app = initializeApp(firebaseConfig);
+        window.__smartfinAuthLoaded = true;
         const auth = getAuth(app);
         const db = getFirestore(app);
-        initFeatures();
+        // O login básico não depende dos módulos extras. Se um arquivo opcional
+        // falhar ao carregar, as contas já cadastradas continuam conseguindo entrar.
+        let syncTransactions = () => {};
+        let coreUnsubscribers = [];
+        let authStateVersion = 0;
+
+        function showAuthStatus(message) {
+            const el = document.getElementById('sf-auth-status');
+            if (!el) return;
+            el.textContent = message;
+            el.hidden = !message;
+        }
+        function showAccessWarning(message) {
+            const el = document.getElementById('sf-access-warning');
+            if (!el) return;
+            el.textContent = message;
+            el.hidden = !message;
+        }
+        function dataReadError(error) {
+            console.error('[SmartFin] Falha no acesso ao Firestore:', error);
+            if (error?.code === 'permission-denied') {
+                showAccessWarning('Sua senha foi aceita, mas o Firebase bloqueou a leitura dos seus dados. As regras do Firestore precisam ser atualizadas para reconhecer as contas antigas. Consulte o README da versão corrigida.');
+            } else {
+                showAccessWarning('Login efetuado, mas houve um problema ao carregar dados: ' + (error?.message || 'erro desconhecido'));
+            }
+        }
+        function stopCoreListeners() {
+            coreUnsubscribers.forEach(unsubscribe => { try { unsubscribe(); } catch (_) {} });
+            coreUnsubscribers = [];
+        }
+
+        import('/js/features.js').then(module => {
+            syncTransactions = module.syncTransactions;
+            module.initFeatures();
+            syncTransactions(transacoesGlobais);
+        }).catch(error => {
+            console.error('[SmartFin] Recursos adicionais não iniciados:', error);
+            // Não interromper a autenticação nem o painel financeiro original.
+        });
 
         let currentUser = null;
         let pieChartInstance = null;
@@ -398,41 +482,84 @@
             }
         };
 
-        window.loginUser = async function() {
-            const email = document.getElementById('auth-email').value;
+        const AUTH_ERRORS = {
+            'auth/invalid-credential': 'E-mail ou senha incorretos. Confira os dados ou use “Esqueci minha senha”.',
+            'auth/wrong-password': 'E-mail ou senha incorretos.',
+            'auth/user-not-found': 'Conta não encontrada neste Firebase. Confira o e-mail ou crie uma conta.',
+            'auth/user-disabled': 'Esta conta está desativada no Firebase.',
+            'auth/too-many-requests': 'Muitas tentativas. Aguarde e tente novamente.',
+            'auth/network-request-failed': 'Falha na conexão com o Firebase. Confira sua internet.',
+            'auth/operation-not-allowed': 'O login com e-mail e senha precisa estar habilitado no Firebase Authentication.',
+            'auth/invalid-api-key': 'A configuração de acesso ao Firebase está inválida.',
+            'auth/unauthorized-domain': 'Este domínio da Vercel precisa ser autorizado no Firebase Authentication.',
+            'auth/invalid-email': 'Digite um endereço de e-mail válido.',
+            'auth/email-already-in-use': 'Esse e-mail já possui conta. Clique em Entrar.',
+            'auth/weak-password': 'Sua senha precisa ter pelo menos seis caracteres.',
+            'auth/missing-password': 'Informe sua senha.'
+        };
+        function authErrorMessage(error) {
+            return AUTH_ERRORS[error?.code] || ('Falha na autenticação: ' + (error?.message || 'erro desconhecido'));
+        }
+        function setAuthBusy(busy, message='') {
+            for (const id of ['sf-login-button', 'sf-register-button', 'sf-reset']) {
+                const button = document.getElementById(id);
+                if (button) button.disabled = busy;
+            }
+            document.getElementById('auth-form')?.setAttribute('aria-busy', String(busy));
+            if (message) showAuthStatus(message);
+        }
+        window.loginUser = async function () {
+            const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            if(!email || !password) return alert("Preencha o e-mail e senha.");
+            if (!email || !password) return showAuthStatus('Preencha o e-mail e a senha para entrar.');
+            setAuthBusy(true, 'Verificando sua conta...');
             try {
                 await signInWithEmailAndPassword(auth, email, password);
+                showAuthStatus('');
             } catch (error) {
-                if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
-                    alert("Acesso Negado: Senha ou e-mail incorretos.");
-                } else {
-                    alert("Erro ao fazer login: " + error.message);
-                }
-            }
+                console.error('[SmartFin] Erro no login:', error.code, error);
+                showAuthStatus(authErrorMessage(error));
+            } finally { setAuthBusy(false); }
         };
-
-        window.registerUser = async function() {
-            const email = document.getElementById('auth-email').value;
+        window.registerUser = async function () {
+            const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
-            if(!email || !password) return alert("Preencha e-mail e senha.");
-            if(password.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
-
+            if (!email || !password) return showAuthStatus('Preencha o e-mail e a senha para criar sua conta.');
+            if (password.length < 6) return showAuthStatus('A senha precisa ter pelo menos 6 caracteres.');
+            setAuthBusy(true, 'Criando sua conta...');
             try {
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    email: userCredential.user.email,
-                    streak: 1,
-                    lastLogin: new Date().toISOString()
-                });
-                alert("Conta criada com sucesso! Bem-vindo.");
+                // Cadastro comum: não consultar lista de autorizados.
+                const {user} = await createUserWithEmailAndPassword(auth, email, password);
+                try {
+                    await setDoc(doc(db, 'users', user.uid), {
+                        email: user.email, streak: 1, lastLogin: new Date().toISOString()
+                    }, {merge: true});
+                } catch (databaseError) {
+                    console.error('[SmartFin] Conta criada, mas perfil não foi salvo:', databaseError);
+                    showAccessWarning('Conta criada e autenticada, mas o Firebase impediu salvar o perfil. Verifique as regras do Firestore.');
+                }
+                showAuthStatus('');
             } catch (error) {
-                alert("Erro: " + (error.code === 'auth/email-already-in-use' ? "E-mail já cadastrado. Faça login." : error.message));
-            }
+                console.error('[SmartFin] Erro no cadastro:', error.code, error);
+                showAuthStatus(authErrorMessage(error));
+            } finally { setAuthBusy(false); }
         };
-
-        window.logoutUser = function() { signOut(auth); };
+        window.resetPassword = async function () {
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) return showAuthStatus('Informe seu e-mail e clique em “Esqueci minha senha”.');
+            setAuthBusy(true, 'Solicitando recuperação de senha...');
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showAuthStatus('Se existir uma conta com este e-mail, as instruções de recuperação serão enviadas. Confira sua caixa de entrada.');
+            } catch (error) {
+                console.error('[SmartFin] Erro na recuperação de senha:', error.code, error);
+                showAuthStatus(authErrorMessage(error));
+            } finally { setAuthBusy(false); }
+        };
+        window.logoutUser = async function () {
+            try { await signOut(auth); }
+            catch (error) { showAccessWarning('Não foi possível sair: ' + (error?.message || 'falha desconhecida')); }
+        };
 
         window.switchTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
@@ -464,24 +591,32 @@
         };
 
         onAuthStateChanged(auth, (user) => {
+            // Encerra listeners da conta anterior antes de abrir os da conta atual.
+            authStateVersion += 1;
+            stopCoreListeners();
+            currentUser = user;
+            transacoesGlobais = [];
+            syncTransactions([]);
+            showAccessWarning('');
             if (user) {
-                currentUser = user;
+                showAuthStatus('');
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard-screen').classList.remove('hidden');
-                document.getElementById('user-email-display').innerText = user.email;
+                document.getElementById('user-email-display').textContent = user.email || 'Usuário';
                 loadAcademyProgress();
-                updateStreak(user);
+                updateStreak(user).catch(dataReadError);
                 loadTransactions(user);
                 loadGoals(user);
             } else {
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('dashboard-screen').classList.add('hidden');
+                document.getElementById('user-email-display').textContent = '';
             }
         });
 
         function loadTransactions(user) {
             const q = query(collection(db, `users/${user.uid}/transactions`), orderBy('data', 'desc'));
-            onSnapshot(q, (snapshot) => {
+            coreUnsubscribers.push(onSnapshot(q, (snapshot) => {
                 let totalReceitas = 0;
                 let totalDespesas = 0;
                 let gastosPorCategoria = {}; 
@@ -527,7 +662,7 @@
                 
                 generateInsights(totalReceitas, totalDespesas, gastosPorCategoria);
                 renderCharts();
-            });
+            }, dataReadError));
         }
 
         function generateInsights(totalRec, totalDes, gastosPorCat) {
@@ -592,7 +727,7 @@
         };
 
         function loadGoals(user) {
-            onSnapshot(query(collection(db, `users/${user.uid}/goals`), orderBy('createdAt', 'desc')), (snapshot) => {
+            coreUnsubscribers.push(onSnapshot(query(collection(db, `users/${user.uid}/goals`), orderBy('createdAt', 'desc')), (snapshot) => {
                 const lista = document.getElementById('lista-metas'); lista.innerHTML = '';
                 snapshot.forEach(docSnap => {
                     const data = docSnap.data();
@@ -611,7 +746,7 @@
                             </div>
                         </div>`;
                 });
-            });
+            }, dataReadError));
         }
 
         window.updateGoalProgress = async function(id, valorAtual) {
@@ -888,13 +1023,15 @@
             applyTheme(nextTheme);
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
+        function initializeSmartFinUI() {
             const choice = localStorage.getItem('smartfin-theme-choice') || localStorage.getItem('smartfin-theme') || 'auto';
             applyTheme(choice === 'auto' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : choice);
             updateCategorias();
             changeAcademyModule(1);
             loadAcademyProgress();
-        });
+        }
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initializeSmartFinUI, {once: true});
+        else initializeSmartFinUI();
     </script>
 </body>
 </html>

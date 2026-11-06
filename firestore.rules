@@ -1,19 +1,36 @@
 rules_version = '2';
 service cloud.firestore {
- match /databases/{database}/documents {
-  function signed() {return request.auth != null;}
-  function isAdmin() {return signed() && request.auth.token.admin == true;}
-  function isAllowed() {return signed() && (isAdmin() || (exists(/databases/$(database)/documents/authorizedEmails/$(request.auth.token.email)) && get(/databases/$(database)/documents/authorizedEmails/$(request.auth.token.email)).data.allowed == true));}
-  match /authorizedEmails/{email} {allow read: if isAdmin(); allow write: if false;}
-  match /users/{uid} {
-   allow read: if isAdmin() || (isAllowed() && request.auth.uid == uid);
-   allow create: if isAllowed() && request.auth.uid == uid && request.resource.data.email == request.auth.token.email;
-   allow update: if isAllowed() && request.auth.uid == uid && request.resource.data.email == resource.data.email;
-   allow delete: if false;
-   match /{subcollection}/{item} {
-    allow read,write: if isAllowed() && request.auth.uid == uid && subcollection in ['transactions','goals','budgets','cards','recurrents','notifications','academyProgress'];
-   }
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function isOwner(uid) { return signedIn() && request.auth.uid == uid; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+
+    // Cadastro normal: cada pessoa tem acesso apenas ao próprio perfil.
+    match /users/{uid} {
+      allow get, list: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && request.resource.data.email == request.auth.token.email;
+      allow update: if isOwner(uid) && request.resource.data.email == resource.data.email;
+      allow delete: if false;
+
+      match /{subcollection}/{item} {
+        allow read, write: if isOwner(uid) && subcollection in [
+          'transactions', 'goals', 'budgets', 'cards', 'recurrents',
+          'notifications', 'academyProgress'
+        ];
+      }
+    }
+
+    // Administração opcional: ainda exige a custom claim admin no Firebase.
+    match /authorizedEmails/{email} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    match /adminAudit/{eventId} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
   }
-  match /{document=**} {allow read,write: if false;}
- }
 }

@@ -3,6 +3,8 @@ const {initializeApp}=require('firebase-admin/app');
 const {getFirestore,FieldValue}=require('firebase-admin/firestore');
 const {getAuth}=require('firebase-admin/auth');
 initializeApp();
+// Gestão administrativa mantida para uma futura política de convites.
+// A lista authorizedEmails NÃO bloqueia cadastro na versão atual.
 exports.manageAuthorizedEmail=onCall(async request=>{
  if(!request.auth?.token?.admin)throw new HttpsError('permission-denied','Somente administradores.');
  const email=String(request.data?.email||'').trim().toLowerCase();
